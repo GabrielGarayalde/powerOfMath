@@ -39,53 +39,28 @@
         margin-top: 20px;
         width: 100px;
       }
-      .results {
-        color: #86c232;
-        font-family: system-ui;
-        font-size: 20px;
-        margin-left: 20px;
-        margin-top: 20px;
-      }
     </style>
     <script>
-      // Function to call your API to calculate the power of math
+      // callAPI function that takes the base and exponent numbers as parameters
       var callAPI = (base, exponent) => {
+        // instantiate a headers object
         var myHeaders = new Headers();
+        // add content type header to object
         myHeaders.append("Content-Type", "application/json");
+        // using built in JSON utility package turn object to string and store in a variable
         var raw = JSON.stringify({ base: base, exponent: exponent });
+        // create a JSON object with parameters for API call and store in a variable
         var requestOptions = {
           method: "POST",
           headers: myHeaders,
           body: raw,
           redirect: "follow",
         };
+        // make API call with parameters and use promises to get response
         fetch("https://v627yvw1hb.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
           .then((response) => response.text())
           .then((result) => alert(JSON.parse(result).body))
           .catch((error) => console.log("error", error));
-      };
-
-      // Function to retrieve and display items from DynamoDB
-      var getDynamoDBItems = () => {
-        var requestOptions = {
-          method: "GET",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          redirect: "follow",
-        };
-        fetch("https://v627yvw1hb.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
-          .then((response) => response.json())
-          .then((data) => displayDynamoDBItems(data))
-          .catch((error) => console.log("error", error));
-      };
-
-      // Function to display DynamoDB items on the webpage
-      var displayDynamoDBItems = (data) => {
-        var resultsElement = document.querySelector(".results");
-        resultsElement.innerHTML = "<h2>DynamoDB Items:</h2>";
-
-        data.Items.forEach((item) => {
-          resultsElement.innerHTML += `<p>${item.propertyName}: ${item.propertyValue}</p>`;
-        });
       };
     </script>
   </head>
@@ -96,18 +71,13 @@
       <input type="text" id="base" />
       <label>...to the power of:</label>
       <input type="text" id="exponent" />
+      <!-- set button onClick method to call function we defined passing input values as parameters -->
       <button
         type="button"
-        onclick="callAPI(document.getElementById('base').value, document.getElementById('exponent').value)"
+        onclick="callAPI(document.getElementById('base').value,document.getElementById('exponent').value)"
       >
         CALCULATE
       </button>
     </form>
-
-    <!-- Display retrieved DynamoDB items here -->
-    <div class="results"></div>
-
-    <!-- Add a button to trigger fetching and displaying DynamoDB items -->
-    <button type="button" onclick="getDynamoDBItems()">Get DynamoDB Items</button>
   </body>
 </html>
