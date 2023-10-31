@@ -52,19 +52,33 @@
       var callAPI = (base, exponent) => {
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
-        var raw = JSON.stringify({ base: base, exponent: exponent });
+
+
+        // Create an object with the request parameters
+        var request = {
+          httpMethod: "POST",
+          queryStringParameters: {
+            base: base,
+            exponent: exponent,
+          },
+        };
+
         var requestOptions = {
           method: "POST",
           headers: myHeaders,
-          body: raw,
+          body: JSON.stringify(request),
           redirect: "follow",
         };
+
+
         fetch("https://wmz9d933n9.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
           .then((response) => response.text())
           .then((result) => alert(JSON.parse(result).body))
           .catch((error) => console.log("error", error));
       };
 
+
+      
       // Function to retrieve and display items from DynamoDB
       var getDynamoDBItems = () => {
         var requestOptions = {
