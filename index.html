@@ -59,7 +59,7 @@
           body: raw,
           redirect: "follow",
         };
-        fetch("https://v627yvw1hb.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
+        fetch("https://wmz9d933n9.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
           .then((response) => response.text())
           .then((result) => alert(JSON.parse(result).body))
           .catch((error) => console.log("error", error));
@@ -72,7 +72,7 @@
           headers: new Headers({ "Content-Type": "application/json" }),
           redirect: "follow",
         };
-        fetch("https://v627yvw1hb.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
+        fetch("https://wmz9d933n9.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
           .then((response) => response.json())
           .then((data) => displayDynamoDBItems(data))
           .catch((error) => console.log("error", error));
