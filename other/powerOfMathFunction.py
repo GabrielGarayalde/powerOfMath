@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         response = table.put_item(
             Item={
                 'ID': str(math_result),
-                'LatestGreetingTime': now
+                'Check': True
             })
 
         return {
