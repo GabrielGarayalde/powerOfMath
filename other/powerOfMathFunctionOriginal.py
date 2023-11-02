@@ -1,16 +1,60 @@
-# import the JSON utility package
 import json
-# import the Python math library
 import math
+import boto3
+from time import gmtime, strftime
 
-# define the handler function that the Lambda service will use an entry point
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('powerOfMathDynamoTable')
+now = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+
 def lambda_handler(event, context):
+    if event['httpMethod'] == 'POST':
+        # If it's a POST request, perform the math calculation and store the result in DynamoDB
+        base = int(event['queryStringParameters']['base'])
+        exponent = int(event['queryStringParameters']['exponent'])
+        math_result = math.pow(base, exponent)
 
-# extract the two numbers from the Lambda service's event object
-    # mathResult = math.pow(int(event['base']), int(event['exponent']))
+        response = table.put_item(
+            Item={
+                'ID': str(math_result),
+                'Check': True
+            })
 
-    # return a properly formatted JSON object
-    return {
-    'statusCode': 200,
-    'body': json.dumps(event)
-    }
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Your result is ' + str(math_result))
+        }
+    elif event['httpMethod'] == 'GET':
+    
+        # If it's a GET request, retrieve data from DynamoDB
+        response = table.scan()
+
+        # Extract the relevant data from the response
+        items = response.get('Items', [])
+        # items = response['Check']
+        # Extract all values under the 'ID' attribute
+        ids = [item['ID'] for item in items]
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps(ids)
+        }
+    else:
+        # # If it's a GET request, retrieve data from DynamoDB
+        # response = table.scan()
+
+        # # Extract the relevant data from the response
+        # items = response.get('Items', [])
+
+        # return {
+        #     'statusCode': 200,
+        #     'body': json.dumps(items)
+        # }
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Unsupported HTTP method')
+        }

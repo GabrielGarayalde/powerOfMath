@@ -8,6 +8,7 @@ table = dynamodb.Table('powerOfMathDynamoTable')
 now = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
 
 def lambda_handler(event, context):
+    
     if event['httpMethod'] == 'POST':
         # If it's a POST request, perform the math calculation and store the result in DynamoDB
         base = int(event['queryStringParameters']['base'])

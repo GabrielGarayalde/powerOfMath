@@ -39,6 +39,9 @@
         margin-top: 20px;
         width: 100px;
       }
+      p {
+        color: white;
+      }
     </style>
     <script>
       // callAPI function that takes the base and exponent numbers as parameters
@@ -48,12 +51,12 @@
         // add content type header to object
         myHeaders.append("Content-Type", "application/json");
         // using built in JSON utility package turn object to string and store in a variable
-         // Create an object with the request parameters
-         var request = {
-          "httpMethod": "POST",
-          "queryStringParameters": {
-            "base": base,
-            "exponent": exponent
+        // Create an object with the request parameters
+        var request = {
+          httpMethod: "POST",
+          queryStringParameters: {
+            base: base,
+            exponent: exponent,
           },
         };
 
@@ -64,10 +67,42 @@
           redirect: "follow",
         };
         // make API call with parameters and use promises to get response
-        fetch("https://wmz9d933n9.execute-api.eu-north-1.amazonaws.com/dev", requestOptions)
+        fetch(
+          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod",
+          requestOptions
+        )
           .then((response) => response.text())
           .then((result) => alert(JSON.parse(result).body))
           .catch((error) => console.log("error", error));
+      };
+
+      var callAPIGET = () => {
+        var myHeaders = new Headers();
+        // add content type header to object
+        myHeaders.append("Content-Type", "application/json");
+
+        var requestOptions = {
+          method: "GET",
+          // headers: myHeaders,
+          // redirect: "follow",
+        };
+
+        // make API call with parameters and use promises to get response
+        fetch(
+          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod",
+          requestOptions
+        )
+          .then((response) => response.text())
+          .then((result) => displayDynamoDBItems(result))
+          .catch((error) => console.log("error", error));
+      };
+
+      // Function to display DynamoDB items on the webpage
+      var displayDynamoDBItems = (data) => {
+        // console.log(data);
+        var resultsElement = document.querySelector(".results");
+        // resultsElement.innerHTML = "<p>DynamoDB Items:</p>";
+        resultsElement.innerHTML = `<p>${data}: </p>`;
       };
     </script>
   </head>
@@ -85,6 +120,12 @@
       >
         CALCULATE
       </button>
+
+      <!-- Display retrieved DynamoDB items here -->
+      <div class="results"></div>
+
+      <!-- Add a button to trigger fetching and displaying DynamoDB items -->
+      <button type="button" onclick="callAPIGET()">Get DynamoDB Items</button>
     </form>
   </body>
 </html>
