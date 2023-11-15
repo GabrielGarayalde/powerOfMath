@@ -6,12 +6,12 @@
     <!-- Styling for the client UI -->
     <style>
       h1 {
-        color: #ffffff;
+        color: beige;
         font-family: system-ui;
         margin-left: 20px;
       }
       body {
-        background-color: #222629;
+        background-color: rgb(127, 127, 219);
       }
       label {
         color: #86c232;
@@ -42,22 +42,27 @@
       p {
         color: white;
       }
+      .small-input {
+        width: 200px;
+      }
+
+      .result-item {
+        background-color: beige;
+        margin: 1rem 0;
+      }
     </style>
     <script>
       // callAPI function that takes the base and exponent numbers as parameters
-      var callAPI = (base, exponent) => {
+      var callAPIPOSTRecipe = (name, ingredients, instructions) => {
         // instantiate a headers object
         var myHeaders = new Headers();
         // add content type header to object
         myHeaders.append("Content-Type", "application/json");
-        // using built in JSON utility package turn object to string and store in a variable
-        // Create an object with the request parameters
+
         var request = {
-          httpMethod: "POST",
-          queryStringParameters: {
-            base: base,
-            exponent: exponent,
-          },
+          name: name,
+          ingredients: ingredients,
+          instructions: instructions,
         };
 
         var requestOptions = {
@@ -68,29 +73,33 @@
         };
         // make API call with parameters and use promises to get response
         fetch(
-          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod",
+          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe",
           requestOptions
         )
           .then((response) => response.text())
-          .then((result) => alert(JSON.parse(result).body))
+          .then((result) => callAPIGETRecipes())
           .catch((error) => console.log("error", error));
       };
 
-      var callAPIGET = () => {
-        var myHeaders = new Headers();
-        // add content type header to object
-        myHeaders.append("Content-Type", "application/json");
+      var callAPIGETRecipe = (RecipeID) => {
+        fetch(
+          `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${RecipeID}`,
+          {
+            method: "GET",
+          }
+        )
+          .then((response) => response.text())
+          .then((result) => displayItem(JSON.parse(data)))
+          .catch((error) => console.log("error", error));
+      };
 
-        var requestOptions = {
-          method: "GET",
-          // headers: myHeaders,
-          // redirect: "follow",
-        };
-
+      var callAPIGETRecipes = () => {
         // make API call with parameters and use promises to get response
         fetch(
-          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod",
-          requestOptions
+          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipes",
+          {
+            method: "GET",
+          }
         )
           .then((response) => response.text())
           .then((result) => displayDynamoDBItems(result))
@@ -99,33 +108,87 @@
 
       // Function to display DynamoDB items on the webpage
       var displayDynamoDBItems = (data) => {
-        // console.log(data);
+        data = JSON.parse(data);
         var resultsElement = document.querySelector(".results");
-        // resultsElement.innerHTML = "<p>DynamoDB Items:</p>";
-        resultsElement.innerHTML = `<p>${data}: </p>`;
+        resultsElement.innerHTML = "";
+
+        for (const item of data) {
+          displayItem(item);
+        }
+      };
+
+      var displayItem = (item) => {
+        var resultsElement = document.querySelector(".results");
+
+        resultsElement.innerHTML += `<div class="result-item">
+          <table>
+            <tr>
+              <td>${item.ID}</td>
+              <td>${item.Ingredients}</td>
+              <td>${item.Instructions}</td>
+              <td>${item.Created}</td>
+              <td><button type="button" onclick="deleteItem('${item.ID}')">Delete</button></td>
+            </tr>
+          </table>
+        </div>`;
+      };
+
+      var deleteItem = (name) => {
+        fetch(
+          `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${name}`,
+          {
+            method: "DELETE",
+          }
+        )
+          .then((response) => {
+            if (response.ok) {
+              callAPIGETRecipes(); // Refresh the list
+            } else {
+              console.error("Delete failed", response.status);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
       };
     </script>
   </head>
   <body>
-    <h1>TO THE POWER OF MATH!</h1>
+    <h1>RECIPE APP</h1>
     <form>
-      <label>Base number:</label>
-      <input type="text" id="base" />
-      <label>...to the power of:</label>
-      <input type="text" id="exponent" />
+      <div>
+        <label>Name</label>
+        <br />
+        <input class="small-input" type="text" id="name" />
+      </div>
+
+      <div>
+        <label>Ingredients</label>
+        <br />
+        <input class="small-input" type="text" id="ingredients" />
+      </div>
+      <div>
+        <label for="instructions">Instructions</label>
+        <br />
+        <textarea id="instructions" rows="8" cols="50"></textarea>
+      </div>
+
       <!-- set button onClick method to call function we defined passing input values as parameters -->
       <button
         type="button"
-        onclick="callAPI(document.getElementById('base').value,document.getElementById('exponent').value)"
+        onclick="callAPIPOSTRecipe(document.getElementById('name').value,document.getElementById('ingredients').value, document.getElementById('instructions').value)"
       >
-        CALCULATE
+        Post Recipe!
       </button>
 
+      <button type="button" onclick="deleteItem('tofu')">Delete tofu!</button>
+      <button type="button" onclick="callAPIGETRecipes()">Get Recipe</button>
       <!-- Display retrieved DynamoDB items here -->
       <div class="results"></div>
 
       <!-- Add a button to trigger fetching and displaying DynamoDB items -->
-      <button type="button" onclick="callAPIGET()">Get DynamoDB Items</button>
+      <!-- <button type="button" onclick="callAPIGET()">Get Recipes!</button> -->
     </form>
   </body>
+  <script>
+    callAPIGETRecipes();
+  </script>
 </html>

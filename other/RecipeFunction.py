@@ -1,11 +1,10 @@
 import json
-import math
 import boto3
 from time import gmtime, strftime
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('powerOfMathDynamoTable')
-now = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+now = strftime("%a, %d %b %Y %H:%M", gmtime())
 
 def lambda_handler(event, context):
 
@@ -24,17 +23,19 @@ def lambda_handler(event, context):
 
 def postResponse(event):
     # If it's a POST request, perform the math calculation and store the result in DynamoDB
-    base = int(event['queryStringParameters']['base'])
-    exponent = int(event['queryStringParameters']['exponent'])
-    math_result = math.pow(base, exponent)
+    name = event['queryStringParameters']['name']
+    ingredients = event['queryStringParameters']['ingredients']
+    instructions = event['queryStringParameters']['instructions']
 
     putResponse = table.put_item(
         Item={
-            'ID': str(math_result),
-            'Check': True
+            'ID': name,
+            'Ingredients': ingredients,
+            'Instructions': instructions,
+            'Created': now
         })
 
-    response = buildResponse(200, 'Your result is ' + str(math_result))
+    response = buildResponse(200, 'POST SUCCESSFUL', name, ingredients, instructions)
 
     return response
 
@@ -48,7 +49,7 @@ def getResponse(event):
     # Extract all values under the 'ID' attribute
     ids = [item['ID'] for item in items]
 
-    response = buildResponse(200, ids)
+    response = buildResponse(200, items)
 
     return response
 
