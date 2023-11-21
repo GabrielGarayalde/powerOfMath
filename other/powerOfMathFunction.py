@@ -1,6 +1,7 @@
 import json
 import logging
 import boto3
+import uuid
 from time import gmtime, strftime
 logger = logging.getLogger()
 
@@ -20,20 +21,52 @@ def lambda_handler(event, context):
         response = postResponse(event)
 
     elif httpMethod == 'GET' and path == recipe_path:
-        recipe_id = event['queryStringParameters']['recipeID']
+        recipe_id = event['queryStringParameters']['ID']
         response = getRecipe(recipe_id)
 
     elif httpMethod == 'GET' and path == recipes_path:
         response = getRecipes()
 
-    elif httpMethod == 'DELETE':
-        response = deleteResponse(event)
+    elif httpMethod == 'DELETE' and path == recipe_path:
+        recipe_id = event['queryStringParameters']['ID']
+        response = deleteResponse(recipe_id)
 
+    elif httpMethod == 'PATCH' and path == recipe_path:
+        recipe_id = event['queryStringParameters']['ID']
+        body = json.loads(event['body'])
+        response = patchRecipe(recipe_id, body['name'], body['ingredients'], body['instructions'])
     else:
         response = buildResponse(400, 'Unsupported HTTP method')
 
     return response
 
+def patchRecipe(ID, new_name, new_ingredients, new_instructions):
+    try:
+        response = table.update_item(
+            Key={'ID': ID},
+            UpdateExpression='SET #nam = :nam, ingredients = :ing, instructions = :inst',
+            ExpressionAttributeValues={
+                ':nam': new_name,
+                ':ing': new_ingredients,
+                ':inst': new_instructions
+            },
+            ExpressionAttributeNames={
+                '#nam': 'name'  # Map #nam to the attribute 'name'
+            },
+            ReturnValues='UPDATED_NEW'
+        )
+
+        body = {
+            'Operation': 'UPDATE',
+            'Message': 'SUCCESS',
+            'UpdatedAttributes': response
+        }
+        return buildResponse(200, body)
+        
+    except Exception as e:
+        logger.error("Error patching item in DynamoDB: %s", e)
+        return buildResponse(500, "Internal Server Error"  + str(e))
+    
 
 def postResponse(event):
     requestBody = json.loads(event['body'])
@@ -42,22 +75,22 @@ def postResponse(event):
     ingredients = requestBody['ingredients']
     instructions = requestBody['instructions']
 
+    unique_id = str(uuid.uuid4())[:8]
+
     putResponse = table.put_item(
         Item={
-            'ID': name,
-            'Ingredients': ingredients,
-            'Instructions': instructions,
-            'Created': now
+            'ID': unique_id,
+            'name': name,
+            'ingredients': ingredients,
+            'instructions': instructions,
+            'created': now
         })
 
-    response = buildResponse(200, name)
+    response = buildResponse(200, putResponse)
 
     return response
 
-def deleteResponse(event):
-    requestBody = json.loads(event['body'])
-    
-    name = requestBody["ID"]
+def deleteResponse(name):
     
     deleteResponse = table.delete_item(
     Key={
@@ -89,7 +122,7 @@ def getRecipe(recipeID):
 
 
 
-def getRecipes(event):
+def getRecipes():
     # If it's a GET request, retrieve data from DynamoDB
     response = table.scan()
 
