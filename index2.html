@@ -19,7 +19,7 @@
 
     <script>
       fetch(
-        "https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=test_put6.jpg",
+        "https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=test.jpg",
         {
           method: "GET",
         }
@@ -92,7 +92,7 @@
           const fileInput = document.getElementById("fileInput");
           if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            uploadImage(file, "test_put6"); // Call the function to upload the image
+            uploadImage(file, "test"); // Call the function to upload the image
           } else {
             alert("Please select an image file to upload.");
           }
