@@ -28,7 +28,7 @@
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
-          return response.json(); // Changed from response.json() to response.text()
+          return response.json(); //
         })
         .then((data) => {
           // Use the base64 string from the response
@@ -37,52 +37,34 @@
         })
         .catch((error) => console.error("Error fetching image:", error));
 
-      //   // UPLOADING IMAGE FUNCTION
-      //   function uploadImage(file, recipeID) {
-      //     // Here you can convert the file to base64 if needed or send as FormData
-      //     const formData = new FormData();
-      //     formData.append("image", file);
-
-      //     fetch(
-      //       `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${recipeID}.jpg`,
-      //       {
-      //         method: "POST",
-      //         body: formData, // Send the file in FormData
-      //       }
-      //     )
-      //       .then((response) => response.text())
-      //       .then((data) => {
-      //         console.log("Image upload successful:", data);
-      //       })
-      //       .catch((error) => console.error("Error uploading image:", error));
-      //   }
-
       function uploadImage(file, recipeID) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const binaryData = event.target.result;
+        // Create a new FormData object
+        let formData = new FormData();
 
-          fetch(
-            `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
-              recipeID
-            )}.jpg`,
-            {
-              method: "POST",
-              body: binaryData, // Send the binary data directly
+        // Append the file to the FormData object. The 'file' field name should match what your backend expects
+        formData.append("file", file);
+
+        // Optionally append additional data, like the recipeID
+        formData.append("recipeID", recipeID);
+
+        // Make the fetch call using FormData
+        fetch(
+          `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna`,
+          {
+            method: "POST",
+            body: formData, // Send the FormData object
+          }
+        )
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
             }
-          )
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.text();
-            })
-            .then((data) => {
-              console.log("Image upload successful:", data);
-            })
-            .catch((error) => console.error("Error uploading image:", error));
-        };
-        reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
+            return response.text();
+          })
+          .then((data) => {
+            console.log("Image upload successful:", data);
+          })
+          .catch((error) => console.error("Error uploading image:", error));
       }
 
       // Event listener for the upload button

@@ -3,260 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>To the Power of Math!</title>
-    <!-- Styling for the client UI -->
-    <style>
-      h1 {
-        color: beige;
-        font-family: system-ui;
-        margin-left: 20px;
-      }
-      body {
-        background-color: rgb(127, 127, 219);
-      }
-      label {
-        color: #86c232;
-        font-family: system-ui;
-        font-size: 20px;
-        margin-left: 20px;
-        margin-top: 20px;
-      }
-      button {
-        background-color: #86c232;
-        border-color: #86c232;
-        color: #ffffff;
-        font-family: system-ui;
-        font-size: 20px;
-        font-weight: bold;
-        margin-left: 30px;
-        margin-top: 20px;
-        width: 140px;
-      }
-      input {
-        color: #222629;
-        font-family: system-ui;
-        font-size: 20px;
-        margin-left: 10px;
-        margin-top: 20px;
-        width: 100px;
-      }
-      p {
-        color: black;
-      }
-      .small-input {
-        width: 200px;
-      }
-
-      .result-item {
-        background-color: beige;
-        margin: 1rem 0;
-      }
-      .results {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      padding: 20px;
-    }
-    .card {
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px;
-      width: 200px;
-      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .card-header {
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 10px;
-    }
-    .card-content {
-      font-size: 14px;
-      color: #666;
-    }
-    .card-actions {
-      margin-top: 10px;
-      text-align: right;
-    }
-    #cancelEditButton {
-    display: none;
-    }
-    </style>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
 
     <!-- Add hidden input to store the ID of the recipe being edited -->
     <input type="hidden" id="editingId" />
-
-    <script>
-      // callAPI function that takes the base and exponent numbers as parameters
-      var callAPIPOSTRecipe = (name, ingredients, instructions) => {
-        // instantiate a headers object
-        var myHeaders = new Headers();
-        // add content type header to object
-        myHeaders.append("Content-Type", "application/json");
-
-        var request = {
-          name: name,
-          ingredients: ingredients,
-          instructions: instructions,
-        };
-
-        var requestOptions = {
-          method: "POST",
-          headers: myHeaders,
-          body: JSON.stringify(request),
-          redirect: "follow",
-        };
-        // make API call with parameters and use promises to get response
-        fetch(
-          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe",
-          
-          requestOptions
-        )
-          .then((response) => response.text())
-          .then((result) => callAPIGETRecipes())
-          .catch((error) => console.log("error", error));
-      };
-
-      var callAPIGETRecipe = (RecipeID) => {
-        fetch(
-          `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${RecipeID}`,
-          {
-            method: "GET",
-          }
-        )
-          .then((response) => response.text())
-          .then((result) => displayItem(JSON.parse(data)))
-          .catch((error) => console.log("error", error));
-      };
-
-      var callAPIGETRecipes = () => {
-        // make API call with parameters and use promises to get response
-        fetch(
-          "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipes",
-          {
-            method: "GET",
-          }
-        )
-          .then((response) => response.text())
-          .then((result) => displayDynamoDBItems(result))
-          .catch((error) => console.log("error", error));
-      };
-
-      // Function to display DynamoDB items on the webpage
-      var displayDynamoDBItems = (data) => {
-        data = JSON.parse(data);
-        var resultsElement = document.querySelector(".results");
-        resultsElement.innerHTML = "";
-
-        for (const item of data) {
-          displayItem(item);
-        }
-      };
-
-      var displayItem = (item) => {
-      var resultsElement = document.querySelector(".results");
-
-      resultsElement.innerHTML += `<div class="card">
-        <div class="card-header">${item.name}</div>
-        <div>
-          <p>Ingredients: ${item.ingredients}</p>
-          <p>Instructions: ${item.instructions}</p>
-          <p>Created: ${item.created}</p>
-
-        </div>
-        <div class="card-actions">
-          <button type="button" onclick="editItem('${item.ID}', '${item.name}', '${item.ingredients}', '${item.instructions}')">Edit</button>
-          <button type="button" onclick="deleteItem('${item.ID}')">Delete</button>
-        </div>
-      </div>`;
-    };
-
-      var editItem = (id, name, ingredients, instructions) => {
-        // Populate form fields for editing
-        document.getElementById("editingId").value = id;
-        document.getElementById("name").value = name;
-        document.getElementById("ingredients").value = ingredients;
-        document.getElementById("instructions").value = instructions;
-
-        // Show the Cancel Edit button
-        document.getElementById("cancelEditButton").style.display = 'block';
-      };
-
-      var callAPIPATCHRecipe = () => {
-        var id = document.getElementById("editingId").value;
-        var name = document.getElementById("name").value;
-        var ingredients = document.getElementById("ingredients").value;
-        var instructions = document.getElementById("instructions").value;
-
-        var myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        var request = {
-          name: name,
-          ingredients: ingredients,
-          instructions: instructions,
-        };
-
-        var requestOptions = {
-          method: "PATCH",
-          headers: myHeaders,
-          body: JSON.stringify(request),
-          redirect: "follow",
-        };
-        console.log(request);
-        fetch(
-          `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${id}`,
-          requestOptions
-        )
-          .then((response) => response.text())
-          .then((result) => callAPIGETRecipes())
-          .catch((error) => console.log("error", error));
-      };
-
-      // Modify the button in the form to handle both post and patch
-      var handleFormSubmit = () => {
-        if (document.getElementById("editingId").value) {
-          console.log(document.getElementById("editingId").value)
-          callAPIPATCHRecipe();
-        } else {
-          callAPIPOSTRecipe(
-            document.getElementById("name").value,
-            document.getElementById("ingredients").value,
-            document.getElementById("instructions").value
-          );
-        }
-
-        // Clear form fields and hide the Cancel Edit button after submission
-        cancelEdit(); // This function already does the required clearing and hiding
-      };
-
-      var cancelEdit = () => {
-      // Clearing the form fields
-      document.getElementById("editingId").value = '';
-      document.getElementById("name").value = '';
-      document.getElementById("ingredients").value = '';
-      document.getElementById("instructions").value = '';
-      // Hide the Cancel Edit button
-      document.getElementById("cancelEditButton").style.display = 'none';
-      };
-
-      var deleteItem = (name) => {
-        fetch(
-          `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${name}`,
-          {
-            method: "DELETE",
-          }
-        )
-          .then((response) => {
-            if (response.ok) {
-              callAPIGETRecipes(); // Refresh the list
-            } else {
-              console.error("Delete failed", response.status);
-            }
-          })
-          .catch((error) => console.error("Error:", error));
-      };
-    </script>
   </head>
   <body>
     <h1>RECIPE APP</h1>
@@ -273,23 +23,33 @@
         <input class="small-input" type="text" id="ingredients" />
       </div>
       <div>
+        <!-- Input for file selection -->
+        <label>Upload Photo</label>
+        <br />
+        <input
+          class="small-input"
+          type="file"
+          id="fileInput"
+          accept=".jpg, .jpeg"
+        />
+      </div>
+      <div>
         <label for="instructions">Instructions</label>
         <br />
         <textarea id="instructions" rows="8" cols="50"></textarea>
       </div>
+    </form>
 
       <!-- Modify the button event -->
       <button type="button" onclick="handleFormSubmit()">Submit</button>
-      <button type="button" id="cancelEditButton" onclick="cancelEdit()">Cancel Edit</button>
+      <button type="button" id="cancelEditButton" onclick="cancelEdit()">
+        Cancel Edit
+      </button>
 
       <!-- Display retrieved DynamoDB items here -->
       <div class="results"></div>
 
-      <!-- Add a button to trigger fetching and displaying DynamoDB items -->
-      <!-- <button type="button" onclick="callAPIGET()">Get Recipes!</button> -->
-    </form>
+
+    <script src="scripts.js"></script>
   </body>
-  <script>
-    callAPIGETRecipes();
-  </script>
 </html>
