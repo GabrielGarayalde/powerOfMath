@@ -91,3 +91,32 @@ p {
     object-fit: cover; /* This will crop the image to fill the square */
   }
   
+  /* NAVBAR */
+  .navbar {
+    position: fixed;
+    width: 200px; /* Adjust width as needed */
+    height: 100%;
+    background-color: rgb(169, 143, 207); /* Background color of the navbar */
+    padding: 20px;
+  }
+  
+  .main-content {
+    margin-left: 220px; /* Adjust based on the width of the navbar */
+    padding: 20px;
+  }
+  
+  .navbar button {
+    margin-left: 0;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #4CAF50; /* Button background color */
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .navbar button:hover {
+    background-color: #45a049; /* Button hover effect */
+  }
+  

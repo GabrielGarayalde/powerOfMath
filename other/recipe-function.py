@@ -3,7 +3,14 @@ import logging
 import boto3
 import uuid
 from time import gmtime, strftime
+from PIL import Image
+import io
+import base64
+
+from botocore.exceptions import ClientError
+
 logger = logging.getLogger()
+s3 = boto3.client('s3')
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('powerOfMathDynamoTable')
@@ -71,11 +78,10 @@ def patchRecipe(ID, new_name, new_ingredients, new_instructions):
 def postResponse(event):
     requestBody = json.loads(event['body'])
 
-    name = requestBody['name']
-    ingredients = requestBody['ingredients']
-    instructions = requestBody['instructions']
-
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id       = requestBody['ID']
+    name            = requestBody['name']
+    ingredients     = requestBody['ingredients']
+    instructions    = requestBody['instructions']
 
     putResponse = table.put_item(
         Item={
@@ -86,54 +92,100 @@ def postResponse(event):
             'created': now
         })
 
+
+
     response = buildResponse(200, putResponse)
 
     return response
 
-def deleteResponse(name):
     
+def deleteResponse(recipe_id):
+    # Delete the item from DynamoDB
     deleteResponse = table.delete_item(
-    Key={
-            'ID': name
-        },
+        Key={'ID': recipe_id},
         ReturnValues='ALL_OLD'
     )
-    
-    response = buildResponse(200, name)
 
+    # Construct the S3 key for the recipe's image
+    s3_key = f"{recipe_id}.jpg"  # Adjust the file extension if necessary
+
+    # Delete the image from S3
+    try:
+        s3.delete_object(Bucket='recipe-bucket-anna', Key=s3_key)
+        
+    except Exception as e:
+        print(f"Error deleting image from S3: {str(e)}")
+        # Optionally handle the error (e.g., logging, returning an error response)
+
+    # Build and return the response
+    response = buildResponse(200, recipe_id)
     return response
 
-
-def getRecipe(recipeID):
-    # Retrieve data from DynamoDB using the get_item method
+    
+def getRecipe(recipe_id):
+    # Extract the recipe ID from the event (e.g., from path parameters)
+    # recipe_id = event['pathParameters']['id']
+    
+    # Retrieve the specific recipe from DynamoDB
     try:
-        response = table.get_item(Key={'ID': recipeID})
+        response = table.get_item(Key={'ID': recipe_id})
     except Exception as e:
-        logger.error("Error getting item from DynamoDB: %s", e)
-        return buildResponse(500, "Internal Server Error")
+        print(f"Error retrieving recipe from DynamoDB: {str(e)}")
+        return buildResponse(500, {"message": "Error retrieving recipe"})
 
-    # Check if the item exists
-    item = response.get('Item')
+    item = response.get('Item', None)
     if not item:
-        return buildResponse(404, "Recipe not found")
+        return buildResponse(404, {"message": "Recipe not found"})
 
-    # Return the found item
-    return buildResponse(200, item)
+    # Construct the S3 key for the recipe's image
+    s3_key = f"{recipe_id}.jpg"
+    
+    try:
+        # Attempt to fetch the image from S3
+        fileObj = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key)
+        file_content = fileObj["Body"].read()
+        encoded_content = base64.b64encode(file_content).decode('utf-8')
 
+        # Attach the encoded image data to the item
+        item['image'] = encoded_content
+    except Exception as e:
+        print(f"Error fetching image from S3 for {s3_key}: {str(e)}")
+        # Handle missing images or other errors - perhaps by setting a default image or flag
 
-
+    # Construct the response body with the single recipe
+    response = buildResponse(200, item)
+    return response
+    
 def getRecipes():
     # If it's a GET request, retrieve data from DynamoDB
     response = table.scan()
 
     # Extract the relevant data from the response
     items = response.get('Items', [])
-    # items = response['Check']
-    # Extract all values under the 'ID' attribute
-    ids = [item['ID'] for item in items]
+
+    # Iterate over each item to fetch the corresponding image from S3
+    for item in items:
+        # Construct the S3 key based on the item's ID
+        s3_key = f"{item['ID']}.jpg"
+        
+        try:
+            # Attempt to fetch the image from S3
+            fileObj = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key)
+            file_content = fileObj["Body"].read()
+            encoded_content = base64.b64encode(file_content).decode('utf-8')
+
+            # Attach the encoded image data to the item
+            item['image'] = encoded_content
+        except Exception as e:
+            print(f"Error fetching image from S3 for {s3_key}: {str(e)}")
+            # Handle missing images or other errors - perhaps by setting a default image or flag
+
+    # # Construct the response body
+    # body = {
+    #     "recipes": items
+    # }
 
     response = buildResponse(200, items)
-
     return response
 
 

@@ -52,7 +52,7 @@ var callAPIPOSTRecipe = (file, name, ingredients, instructions) => {
       .then((data) => {
         console.log("Image upload successful:", data);
       })
-      .then((result) => callAPIGETRecipes())
+    //   .then((result) => callAPIGETRecipes())
       .catch((error) => console.error("Error uploading image:", error));
   };
   reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
@@ -251,6 +251,4 @@ var deleteItem = (name) => {
     .catch((error) => console.error("Error:", error));
 };
 
-document.addEventListener("DOMContentLoaded", function () {
-  callAPIGETRecipes();
-});
+
