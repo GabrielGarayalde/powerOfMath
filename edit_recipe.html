@@ -15,7 +15,7 @@
     </div>
 
     <div class="main-content">
-      <h1>Create recipe</h1>
+      <h1>Edit recipe</h1>
       <form>
         <div>
           <label>Name</label>
@@ -45,11 +45,33 @@
         </div>
       </form>
       <!-- Modify the button event -->
-      <button type="button" onclick="CreateRecipeSubmit()">Submit Recipe</button>
+      <button type="button" onclick="EditRecipeSubmit()">Submit Edit</button>
+      <button type="button" id="cancelEditButton" onclick="cancelEdit()">
+        Cancel Edit
+      </button>
     </div>
 
-    <!-- Display retrieved DynamoDB items here -->
-    <!-- <div class="results"></div> -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Function to parse query parameters
+        function getQueryParam(param) {
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get(param);
+        }
+
+        // Fetch the recipe ID from the URL
+        const recipeId = getQueryParam("id");
+        if (recipeId) {
+          callAPIGETRecipe(recipeId)
+            .then((response) => {
+              displayEditItem(response);
+            })
+            .catch((error) => {
+              console.error("error", error); // Error handling
+            });
+        }
+      });
+    </script>
 
     <script src="scripts.js"></script>
   </body>

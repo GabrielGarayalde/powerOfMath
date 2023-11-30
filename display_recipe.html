@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Display Recipe</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
+    <div class="navbar">
+      <a href="index.html"><button>Cookbook Home</button></a>
+      <a href="create_recipe.html"><button>Create Recipe</button></a>
+    </div>
+    <div class="content-container">
+      <div class="main-content">
+        <h1>Display Recipe</h1>
+        <h2 id="recipeName"></h2>
+        <p>
+          <strong>Ingredients:</strong> <span id="recipeIngredients"></span>
+        </p>
+        <p>
+          <strong>Instructions:</strong> <span id="recipeInstructions"></span>
+        </p>
+        <img
+          id="recipeImage"
+          src=""
+          alt="Recipe Image"
+          style="max-width: 300px; height: auto"
+        />
+      </div>
+    </div>
+
+    <script src="scripts.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Function to parse query parameters
+        function getQueryParam(param) {
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get(param);
+        }
+
+        // Fetch the recipe ID from the URL
+        const recipeId = getQueryParam("id");
+        if (recipeId) {
+          callAPIGETRecipe(recipeId)
+            .then((response) => {
+              displayItem(response);
+            })
+            .catch((error) => {
+              console.error("error", error); // Error handling
+            });
+        }
+      });
+
+      function displayItem(item) {
+        document.getElementById("recipeName").textContent = item.name;
+        document.getElementById("recipeIngredients").textContent =
+          item.ingredients;
+        document.getElementById("recipeInstructions").textContent =
+          item.instructions;
+        document.getElementById("recipeImage").src =
+          "data:image/jpeg;base64," + item.image;
+      }
+    </script>
+  </body>
+</html>

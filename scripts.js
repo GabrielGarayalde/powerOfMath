@@ -52,26 +52,56 @@ var callAPIPOSTRecipe = (file, name, ingredients, instructions) => {
       .then((data) => {
         console.log("Image upload successful:", data);
       })
-    //   .then((result) => callAPIGETRecipes())
+      //   .then((result) => callAPIGETRecipes())
       .catch((error) => console.error("Error uploading image:", error));
   };
   reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
 };
 
 var callAPIGETRecipe = (RecipeID) => {
-  fetch(
+  return fetch(
     `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${RecipeID}`,
     {
       method: "GET",
     }
   )
-    .then((response) => response.text())
-    .then((result) => displayItem(JSON.parse(data)))
-    .catch((error) => console.log("error", error));
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.text(); // Make sure to return the response text here
+    })
+    .then((result) => {
+      return JSON.parse(result);
+    })
+    .catch((error) => {
+      console.log("error", error);
+      throw error;
+    });
 };
 
+// Function to store recipes in local storage
+function storeRecipesInCache(recipes) {
+  console.log("result: ", recipes);
+  localStorage.setItem("recipes", JSON.stringify(recipes));
+}
+
+// Function to retrieve recipes from local storage
+function getRecipesFromCache() {
+  const storedData = localStorage.getItem("recipes");
+  return (recipes = storedData ? JSON.parse(storedData) : []);
+}
+
+// Modified callAPIGETRecipes to use caching
 var callAPIGETRecipes = () => {
-  // make API call with parameters and use promises to get response
+  const cachedRecipes = getRecipesFromCache();
+  console.log("result: ", cachedRecipes);
+
+  if (cachedRecipes) {
+    console.log("cached recipes used");
+    displayDynamoDBItems(cachedRecipes); // Replace this with your function to display recipes
+  }
+
   fetch(
     "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipes",
     {
@@ -79,9 +109,13 @@ var callAPIGETRecipes = () => {
     }
   )
     .then((response) => response.json())
-    .then((result) => displayDynamoDBItems(result)) // console.log(result)) //
+    .then((result) => {
+      storeRecipesInCache(result);
+      displayDynamoDBItems(result);
+    })
     .catch((error) => console.log("error", error));
 };
+
 
 // Function to display DynamoDB items on the webpage
 var displayDynamoDBItems = (data) => {
@@ -91,37 +125,39 @@ var displayDynamoDBItems = (data) => {
 
   for (const item of data) {
     // console.log(item);
-    displayItem(item);
+    displayCardItem(item);
   }
 };
 
-var displayItem = (item) => {
+var displayCardItem = (item) => {
   var resultsElement = document.querySelector(".results");
 
-  // Modify the card template to include an image
-  resultsElement.innerHTML += `<div class="card">
-    <div class="card-header">${item.name}</div>
-    <div class="image-container">
-        <img src="data:image/jpeg;base64,${item.image}" alt="${item.name}" class="square-image">
+  // Wrap the card content in an anchor tag
+  resultsElement.innerHTML += `<a href="display_recipe.html?id=${item.ID}" class="card-link">
+    <div class="card">
+        <div class="card-header">${item.name}</div>
+        <div class="image-container">
+            <img src="data:image/jpeg;base64,${item.image}" alt="${item.name}" class="square-image">
+        </div>
+        <div>
+            <p>Ingredients: ${item.ingredients}</p>
+            <p>Instructions: ${item.instructions}</p>
+            <p>Created: ${item.created}</p>
+            </div>
+        <div class="card-actions">
+            <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
+            <button type="button" onclick="event.stopPropagation(); deleteItem('${item.ID}');">Delete</button>
+        </div>
     </div>
-    <div>
-        <p>Ingredients: ${item.ingredients}</p>
-        <p>Instructions: ${item.instructions}</p>
-        <p>Created: ${item.created}</p>
-    </div>
-    <div class="card-actions">
-        <button type="button" onclick="editItem('${item.ID}', '${item.name}', '${item.ingredients}', '${item.instructions}')">Edit</button>
-        <button type="button" onclick="deleteItem('${item.ID}')">Delete</button>
-    </div>
-</div>`;
+    </a>`;
 };
 
-var editItem = (id, name, ingredients, instructions) => {
+var displayEditItem = (result) => {
   // Populate form fields for editing
-  document.getElementById("editingId").value = id;
-  document.getElementById("name").value = name;
-  document.getElementById("ingredients").value = ingredients;
-  document.getElementById("instructions").value = instructions;
+  document.getElementById("editingId").value = result.ID;
+  document.getElementById("name").value = result.name;
+  document.getElementById("ingredients").value = result.ingredients;
+  document.getElementById("instructions").value = result.instructions;
 
   // Show the Cancel Edit button
   document.getElementById("cancelEditButton").style.display = "block";
@@ -158,7 +194,7 @@ var callAPIPATCHRecipe = () => {
       requestOptions
     )
       .then((response) => response.text())
-      .then((result) => callAPIGETRecipes())
+      .then((result) => alert("recipe patched succesfully!"))
       .catch((error) => console.log("error", error));
   };
 
@@ -199,24 +235,25 @@ var callAPIPATCHRecipe = () => {
 };
 
 // Modify the button in the form to handle both post and patch
-var handleFormSubmit = () => {
-  if (document.getElementById("editingId").value) {
-    console.log(document.getElementById("editingId").value);
-    callAPIPATCHRecipe();
+var EditRecipeSubmit = () => {
+  callAPIPATCHRecipe();
+  cancelEdit(); // This function already does the required clearing and hiding
+};
+
+// Modify the button in the form to handle both post and patch
+var CreateRecipeSubmit = () => {
+  let file;
+  const fileInput = document.getElementById("fileInput");
+  if (fileInput.files.length > 0) {
+    file = fileInput.files[0];
+    callAPIPOSTRecipe(
+      file,
+      document.getElementById("name").value,
+      document.getElementById("ingredients").value,
+      document.getElementById("instructions").value
+    );
   } else {
-    let file;
-    const fileInput = document.getElementById("fileInput");
-    if (fileInput.files.length > 0) {
-      file = fileInput.files[0];
-      callAPIPOSTRecipe(
-        file,
-        document.getElementById("name").value,
-        document.getElementById("ingredients").value,
-        document.getElementById("instructions").value
-      );
-    } else {
-      alert("Please select an image file to upload.");
-    }
+    alert("Please select an image file to upload.");
   }
 
   // Clear form fields and hide the Cancel Edit button after submission
@@ -231,6 +268,8 @@ var cancelEdit = () => {
   document.getElementById("instructions").value = "";
   // Hide the Cancel Edit button
   document.getElementById("cancelEditButton").style.display = "none";
+
+  window.location.href = "/"; // Update this URL to your homepage URL if it's different
 };
 
 var deleteItem = (name) => {
@@ -241,7 +280,7 @@ var deleteItem = (name) => {
     }
   )
     .then((response) => {
-        console.log(response, "recipe deleted")
+      console.log(response, "recipe deleted");
       if (response.ok) {
         callAPIGETRecipes(); // Refresh the list
       } else {
@@ -250,5 +289,3 @@ var deleteItem = (name) => {
     })
     .catch((error) => console.error("Error:", error));
 };
-
-
