@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Cookbook Home</title>
-  <link rel="stylesheet" type="text/css" href="styles.css" />
-</head>
-<body>
-  <div class="navbar">
-    <a href="index.html"><button>Cookbook Home</button></a>
-    <a href="create_recipe.html"><button>Create Recipe</button></a>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cookbook Home</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
+    <div class="navbar">
+      <a href="index.html"><button>Cookbook Home</button></a>
+      <a href="create_recipe.html"><button>Create Recipe</button></a>
+    </div>
 
-  <div class="main-content">
-    <h1>Cookbook Home</h1>
-    <select onchange="sortRecipes(this.value)">
-      <option value="">Sort Recipes</option>
-      <option value="name-asc">Sort by Name (A-Z)</option>
-      <option value="name-desc">Sort by Name (Z-A)</option>
-      <option value="date-recent-first">Date Created: Recent First</option>
-      <option value="date-oldest-first">Date Created: Oldest First</option>
-    </select>
-    <!-- Display retrieved DynamoDB items here -->
-    <div class="results"></div>
-  </div>
-  <script src="scripts.js"></script>
+    <div class="main-content">
+      <h1>Cookbook Home</h1>
+      <select onchange="sortRecipes(this.value)">
+        <option value="">Sort Recipes</option>
+        <option value="name-asc">Sort by Name (A-Z)</option>
+        <option value="name-desc">Sort by Name (Z-A)</option>
+        <option value="date-recent-first">Date Created: Recent First</option>
+        <option value="date-oldest-first">Date Created: Oldest First</option>
+      </select>
+      <!-- Display retrieved DynamoDB items here -->
+      <div class="results"></div>
+    </div>
+    <script src="scripts.js"></script>
 
-  <!-- Inline script to run specific functions for this page -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        callAPIGETRecipes();
-    });
-</script>
-</body>
+    <!-- Inline script to run specific functions for this page -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const cachedRecipes = getRecipesFromCache();
+
+        if (cachedRecipes) {
+          // Use cached recipes immediately
+          displayDynamoDBItems(cachedRecipes); // Display cached recipes
+        }
+        callAPIGETRecipes()
+          .then((response) => {
+            displayDynamoDBItems(response);
+          })
+          .catch((error) => {
+            console.error("error", error); // Error handling
+          });
+      });
+    </script>
+  </body>
 </html>

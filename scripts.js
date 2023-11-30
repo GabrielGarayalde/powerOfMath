@@ -4,58 +4,59 @@ function generateUniqueId() {
 
 // callAPI function that takes the base and exponent numbers as parameters
 var callAPIPOSTRecipe = (file, name, ingredients, instructions) => {
-  // GENERATE A UNIQUE ID IDENTIFIER FOR THE RECIPE TEXT AND IMAGE
-  let unique_id = generateUniqueId();
+    console.log("post request");
+    // GENERATE A UNIQUE ID IDENTIFIER FOR THE RECIPE TEXT AND IMAGE
+    let unique_id = generateUniqueId();
 
-  // FIRST WE DO A POST REQUEST TO THE DYNAMO DB TABLE
-  var myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
+    // FIRST WE DO A POST REQUEST TO THE DYNAMO DB TABLE
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-  var request = {
-    ID: unique_id,
-    name: name,
-    ingredients: ingredients,
-    instructions: instructions,
-  };
-  var requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: JSON.stringify(request),
-    redirect: "follow",
-  };
-  fetch(
-    "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe",
-    requestOptions
-  )
-    .then((response) => response.text())
-    // .then((result) => callAPIGETRecipes())
-    .catch((error) => console.log("error", error));
-  // THEN WE DO A POST REQUEST TO THE S3 BUCKET
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    const binaryData = event.target.result;
+    var request = {
+      ID: unique_id,
+      name: name,
+      ingredients: ingredients,
+      instructions: instructions,
+    };
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify(request),
+      redirect: "follow",
+    };
     fetch(
-      `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
-        unique_id
-      )}.jpg`,
-      {
-        method: "POST",
-        body: binaryData, // Send the binary data directly
-      }
+      "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe",
+      requestOptions
     )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+      .then((response) => response.text())
+      // .then((result) => callAPIGETRecipes())
+      .catch((error) => console.log("error", error));
+    // THEN WE DO A POST REQUEST TO THE S3 BUCKET
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const binaryData = event.target.result;
+      fetch(
+        `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
+          unique_id
+        )}.jpg`,
+        {
+          method: "POST",
+          body: binaryData, // Send the binary data directly
         }
-        return response.text();
-      })
-      .then((data) => {
-        console.log("Image upload successful:", data);
-      })
-      //   .then((result) => callAPIGETRecipes())
-      .catch((error) => console.error("Error uploading image:", error));
-  };
-  reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.text();
+        })
+        .then((data) => {
+          console.log("Image upload successful:", data);
+        })
+        //   .then((result) => callAPIGETRecipes())
+        .catch((error) => console.error("Error uploading image:", error));
+    };
+    reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
 };
 
 var callAPIGETRecipe = (RecipeID) => {
@@ -94,15 +95,8 @@ function getRecipesFromCache() {
 
 // Modified callAPIGETRecipes to use caching
 var callAPIGETRecipes = () => {
-  const cachedRecipes = getRecipesFromCache();
-  console.log("result: ", cachedRecipes);
 
-  if (cachedRecipes) {
-    console.log("cached recipes used");
-    displayDynamoDBItems(cachedRecipes); // Replace this with your function to display recipes
-  }
-
-  fetch(
+  return fetch(
     "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipes",
     {
       method: "GET",
@@ -111,7 +105,8 @@ var callAPIGETRecipes = () => {
     .then((response) => response.json())
     .then((result) => {
       storeRecipesInCache(result);
-      displayDynamoDBItems(result);
+      return result;
+      //   displayDynamoDBItems(result);
     })
     .catch((error) => console.log("error", error));
 };
@@ -236,7 +231,7 @@ var callAPIPATCHRecipe = () => {
 // Modify the button in the form to handle both post and patch
 var EditRecipeSubmit = () => {
   callAPIPATCHRecipe();
-  cancelEdit(); // This function already does the required clearing and hiding
+  //   cancelEdit(); // This function already does the required clearing and hiding
 };
 
 // Modify the button in the form to handle both post and patch
@@ -256,8 +251,10 @@ var CreateRecipeSubmit = () => {
   }
 
   // Clear form fields and hide the Cancel Edit button after submission
-  cancelEdit(); // This function already does the required clearing and hiding
+//   cancelEdit(); // This function already does the required clearing and hiding
 };
+
+// 
 
 var cancelEdit = () => {
   // Clearing the form fields
@@ -265,8 +262,6 @@ var cancelEdit = () => {
   document.getElementById("name").value = "";
   document.getElementById("ingredients").value = "";
   document.getElementById("instructions").value = "";
-  // Hide the Cancel Edit button
-  document.getElementById("cancelEditButton").style.display = "none";
 
   window.location.href = "/"; // Update this URL to your homepage URL if it's different
 };
@@ -289,12 +284,6 @@ var deleteItem = (name) => {
     .catch((error) => console.error("Error:", error));
 };
 
-// Function to sort recipes alphabetically by name
-// function sortRecipes() {
-//   const cachedRecipes = getRecipesFromCache();
-//   cachedRecipes.sort((a, b) => a.name.localeCompare(b.name));
-//   displayDynamoDBItems(recipes);
-// }
 
 // Function to sort recipes based on selected option
 function sortRecipes(sortOption) {
@@ -312,9 +301,9 @@ function sortRecipes(sortOption) {
       cachedRecipes.sort((a, b) => new Date(b.created) - new Date(a.created));
       break;
     case "date-oldest-first":
-    // Assuming you have a 'created' property in your recipe objects
-        cachedRecipes.sort((a, b) => new Date(a.created) - new Date(b.created));
-        break;
+      // Assuming you have a 'created' property in your recipe objects
+      cachedRecipes.sort((a, b) => new Date(a.created) - new Date(b.created));
+      break;
     default:
     // No sorting or default sorting logic if needed
   }
