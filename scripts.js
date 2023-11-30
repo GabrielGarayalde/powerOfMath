@@ -116,7 +116,6 @@ var callAPIGETRecipes = () => {
     .catch((error) => console.log("error", error));
 };
 
-
 // Function to display DynamoDB items on the webpage
 var displayDynamoDBItems = (data) => {
   // data = JSON.parse(data);
@@ -289,3 +288,35 @@ var deleteItem = (name) => {
     })
     .catch((error) => console.error("Error:", error));
 };
+
+// Function to sort recipes alphabetically by name
+// function sortRecipes() {
+//   const cachedRecipes = getRecipesFromCache();
+//   cachedRecipes.sort((a, b) => a.name.localeCompare(b.name));
+//   displayDynamoDBItems(recipes);
+// }
+
+// Function to sort recipes based on selected option
+function sortRecipes(sortOption) {
+  const cachedRecipes = getRecipesFromCache();
+
+  switch (sortOption) {
+    case "name-asc":
+      cachedRecipes.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "name-desc":
+      cachedRecipes.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "date-recent-first":
+      // Assuming you have a 'created' property in your recipe objects
+      cachedRecipes.sort((a, b) => new Date(b.created) - new Date(a.created));
+      break;
+    case "date-oldest-first":
+    // Assuming you have a 'created' property in your recipe objects
+        cachedRecipes.sort((a, b) => new Date(a.created) - new Date(b.created));
+        break;
+    default:
+    // No sorting or default sorting logic if needed
+  }
+  displayDynamoDBItems(recipes);
+}
