@@ -2,62 +2,68 @@ function generateUniqueId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
-// callAPI function that takes the base and exponent numbers as parameters
-var callAPIPOSTRecipe = (file, name, ingredients, instructions) => {
-    console.log("post request");
-    // GENERATE A UNIQUE ID IDENTIFIER FOR THE RECIPE TEXT AND IMAGE
+var callAPIPOSTRecipe = async (file, name, ingredients, instructions) => {
     let unique_id = generateUniqueId();
-
-    // FIRST WE DO A POST REQUEST TO THE DYNAMO DB TABLE
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var request = {
-      ID: unique_id,
-      name: name,
-      ingredients: ingredients,
-      instructions: instructions,
-    };
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: JSON.stringify(request),
-      redirect: "follow",
-    };
-    fetch(
-      "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe",
-      requestOptions
-    )
-      .then((response) => response.text())
-      // .then((result) => callAPIGETRecipes())
-      .catch((error) => console.log("error", error));
-    // THEN WE DO A POST REQUEST TO THE S3 BUCKET
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const binaryData = event.target.result;
-      fetch(
-        `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
-          unique_id
-        )}.jpg`,
+  
+    // First, upload the image to S3
+    try {
+      const binaryData = await readFileAsArrayBuffer(file);
+      const imageUploadResponse = await fetch(
+        `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(unique_id)}.jpg`,
         {
           method: "POST",
-          body: binaryData, // Send the binary data directly
+          body: binaryData,
         }
-      )
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.text();
-        })
-        .then((data) => {
-          console.log("Image upload successful:", data);
-        })
-        //   .then((result) => callAPIGETRecipes())
-        .catch((error) => console.error("Error uploading image:", error));
-    };
-    reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
-};
+      );
+  
+      if (!imageUploadResponse.ok) {
+        throw new Error("Image upload failed");
+      }
+  
+      console.log("Image upload successful");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error; // Re-throw to be handled by the caller
+    }
+  
+    // Then, post the recipe data to DynamoDB
+    try {
+      var requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ID: unique_id,
+          name: name,
+          ingredients: ingredients,
+          instructions: instructions,
+        }),
+      };
+  
+      const dbResponse = await fetch("https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe", requestOptions);
+      const dbResult = await dbResponse.text();
+  
+      if (!dbResponse.ok) {
+        throw new Error("DB update failed");
+      }
+  
+      console.log("DB update successful");
+      return dbResult;
+    } catch (error) {
+      console.error("Error updating DB:", error);
+      throw error; // Re-throw to be handled by the caller
+    }
+  };
+  
+  // Helper function to read file as ArrayBuffer
+  function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsArrayBuffer(file);
+    });
+  }
+  
 
 var callAPIGETRecipe = (RecipeID) => {
   return fetch(
@@ -94,21 +100,20 @@ function getRecipesFromCache() {
 }
 
 // Modified callAPIGETRecipes to use caching
-var callAPIGETRecipes = () => {
-
-  return fetch(
-    "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipes",
-    {
-      method: "GET",
-    }
-  )
-    .then((response) => response.json())
-    .then((result) => {
-      storeRecipesInCache(result);
-      return result;
-      //   displayDynamoDBItems(result);
-    })
-    .catch((error) => console.log("error", error));
+var callAPIGETRecipes = async () => {
+  try {
+    const response = await fetch(
+      "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipes",
+      {
+        method: "GET",
+      }
+    );
+    const result_1 = await response.json();
+    storeRecipesInCache(result_1);
+    return result_1;
+  } catch (error) {
+    return console.log("error", error);
+  }
 };
 
 // Function to display DynamoDB items on the webpage
@@ -127,8 +132,8 @@ var displayCardItem = (item) => {
   var resultsElement = document.querySelector(".results");
 
   // Wrap the card content in an anchor tag
-  resultsElement.innerHTML += `<a href="display_recipe.html?id=${item.ID}" class="card-link">
-    <div class="card">
+  resultsElement.innerHTML += `<a href="display_recipe.html?id=${item.ID}"  class="card-link">
+    <div class="card" data-id="${item.ID}">
         <div class="card-header">${item.name}</div>
         <div class="image-container">
             <img src="data:image/jpeg;base64,${item.image}" alt="${item.name}" class="square-image">
@@ -140,10 +145,11 @@ var displayCardItem = (item) => {
             </div>
         <div class="card-actions">
             <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
-            <button type="button" onclick="event.stopPropagation(); deleteItem('${item.ID}');">Delete</button>
-        </div>
-    </div>
-    </a>`;
+            <button id="deleteButton" type="button">Delete</button>
+
+            </div>
+            </div>
+            </a>`;
 };
 
 var displayEditItem = (result) => {
@@ -235,12 +241,31 @@ var EditRecipeSubmit = () => {
 };
 
 // Modify the button in the form to handle both post and patch
-var CreateRecipeSubmit = () => {
+// var CreateRecipeSubmit = () => {
+//   let file;
+//   const fileInput = document.getElementById("fileInput");
+//   if (fileInput.files.length > 0) {
+//     file = fileInput.files[0];
+//     callAPIPOSTRecipe(
+//       file,
+//       document.getElementById("name").value,
+//       document.getElementById("ingredients").value,
+//       document.getElementById("instructions").value
+//     );
+//   } else {
+//     alert("Please select an image file to upload.");
+//   }
+
+// };
+
+var CreateRecipeSubmit = async () => {
   let file;
   const fileInput = document.getElementById("fileInput");
   if (fileInput.files.length > 0) {
     file = fileInput.files[0];
-    callAPIPOSTRecipe(
+    console.log("file", file)
+    return callAPIPOSTRecipe(
+      // Returns the promise
       file,
       document.getElementById("name").value,
       document.getElementById("ingredients").value,
@@ -248,13 +273,9 @@ var CreateRecipeSubmit = () => {
     );
   } else {
     alert("Please select an image file to upload.");
+    return Promise.reject(new Error("No image file selected")); // Rejects the promise if no file is selected
   }
-
-  // Clear form fields and hide the Cancel Edit button after submission
-//   cancelEdit(); // This function already does the required clearing and hiding
 };
-
-// 
 
 var cancelEdit = () => {
   // Clearing the form fields
@@ -266,24 +287,47 @@ var cancelEdit = () => {
   window.location.href = "/"; // Update this URL to your homepage URL if it's different
 };
 
-var deleteItem = (name) => {
-  fetch(
-    `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${name}`,
-    {
-      method: "DELETE",
-    }
-  )
-    .then((response) => {
-      console.log(response, "recipe deleted");
-      if (response.ok) {
-        callAPIGETRecipes(); // Refresh the list
-      } else {
-        console.error("Delete failed", response.status);
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-};
+// var deleteItem = async (name) => {
+//   fetch(
+//     `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${name}`,
+//     {
+//       method: "DELETE",
+//     }
+//   )
+//     .then((response) => {
+//       console.log(response, "recipe deleted");
+//       if (response.ok) {
+//         callAPIGETRecipes(); // Refresh the list
+//       } else {
+//         console.error("Delete failed", response.status);
+//       }
+//     })
+//     .catch((error) => console.error("Error:", error));
+// };
 
+var deleteItem = async (name) => {
+  try {
+    const response = await fetch(
+      `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${name}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    console.log(response, "recipe deleted");
+
+    if (response.ok) {
+      // Refresh the list
+      const updatedRecipes = await callAPIGETRecipes();
+      // Assuming you have a function to update the display with the new list
+      displayDynamoDBItems(updatedRecipes);
+    } else {
+      console.error("Delete failed", response.status);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
 
 // Function to sort recipes based on selected option
 function sortRecipes(sortOption) {

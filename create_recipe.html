@@ -45,12 +45,23 @@
         </div>
       </form>
       <!-- Modify the button event -->
-      <button type="button" onclick="CreateRecipeSubmit()">Submit Recipe</button>
+      <button type="button" onclick="handleSubmit()">
+        Submit Recipe
+      </button>
     </div>
 
-    <!-- Display retrieved DynamoDB items here -->
-    <!-- <div class="results"></div> -->
-
+    <script>
+      async function handleSubmit() {
+        try {
+          await CreateRecipeSubmit();
+          alert("Recipe created successfully");
+          window.location.href = "index.html"; // Navigate to the homepage
+        } catch (error) {
+          console.error("Error during recipe creation:", error);
+          // Optionally, display an error message to the user
+        }
+      }
+    </script>
     <script src="scripts.js"></script>
   </body>
 </html>

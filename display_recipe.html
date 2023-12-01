@@ -26,6 +26,10 @@
           alt="Recipe Image"
           style="max-width: 300px; height: auto"
         />
+        <div>
+          <a id="editButton" href=""><button type="button">Edit</button></a>
+          <button id="deleteButton" type="button">Delete</button>
+        </div>
       </div>
     </div>
 
@@ -59,6 +63,26 @@
           item.instructions;
         document.getElementById("recipeImage").src =
           "data:image/jpeg;base64," + item.image;
+
+        // Update the Edit button's href with the recipe ID
+        document.getElementById(
+          "editButton"
+        ).href = `edit_recipe.html?id=${item.ID}`;
+
+        document.getElementById("deleteButton").onclick = async function () {
+          try {
+            await deleteItem(item.ID);
+            // Perform any actions after successful deletion
+            alert("Recipe deleted successfully");
+
+            // Navigate to index.html after successful deletion
+            window.location.href = "index.html";
+            // Optionally, navigate to another page or update the UI
+          } catch (error) {
+            console.error("Error deleting recipe:", error);
+            // Handle any errors that occurred during deletion
+          }
+        };
       }
     </script>
   </body>
