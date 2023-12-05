@@ -134,22 +134,22 @@ var displayCardItem = (item) => {
   // Wrap the card content in an anchor tag
   resultsElement.innerHTML += `<a href="display_recipe.html?id=${item.ID}"  class="card-link">
     <div class="card" data-id="${item.ID}">
-        <div class="card-header">${item.name}</div>
-        <div class="image-container">
-            <img src="data:image/jpeg;base64,${item.image}" alt="${item.name}" class="square-image">
-        </div>
-        <div>
-            <p>Ingredients: ${item.ingredients}</p>
-            <p>Instructions: ${item.instructions}</p>
-            <p>Created: ${item.created}</p>
-            </div>
-        <div class="card-actions">
-            <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
-            <button id="deleteButton" type="button">Delete</button>
 
-            </div>
-            </div>
-            </a>`;
+      <div class="image-container">
+        <img src="data:image/jpeg;base64,${item.image}" alt="${item.name}" class="square-image">
+      </div>
+
+      <div class="card-header">
+        <h3>${item.name}</h3>
+        <div class="card-actions">
+          <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
+          <button id="deleteButton" type="button">Delete</button>
+        </div>
+      </div>
+
+    </div>
+
+    </a>`;
 };
 
 var displayEditItem = (result) => {
@@ -239,24 +239,6 @@ var EditRecipeSubmit = () => {
   callAPIPATCHRecipe();
   //   cancelEdit(); // This function already does the required clearing and hiding
 };
-
-// Modify the button in the form to handle both post and patch
-// var CreateRecipeSubmit = () => {
-//   let file;
-//   const fileInput = document.getElementById("fileInput");
-//   if (fileInput.files.length > 0) {
-//     file = fileInput.files[0];
-//     callAPIPOSTRecipe(
-//       file,
-//       document.getElementById("name").value,
-//       document.getElementById("ingredients").value,
-//       document.getElementById("instructions").value
-//     );
-//   } else {
-//     alert("Please select an image file to upload.");
-//   }
-
-// };
 
 var CreateRecipeSubmit = async () => {
   let file;
