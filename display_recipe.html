@@ -8,38 +8,37 @@
   <body>
     <div class="navbar">
       <div class="navbar-logo">
-        <h1 >T E</h1>
-        <h1 >L O</h1>
-        <h1 >G I</h1>
-        <h1 >U R</h1>
-        <h1 >O ~</h1>
+        <h1>T E L O G I U R O ~</h1>
+
       </div>
       <a href="index.html"><button>Cookbook Home</button></a>
       <a href="create_recipe.html"><button>Create Recipe</button></a>
     </div>
-    <div class="content-container">
-      <div class="main-content">
-        <h1 class="uppercase" id="recipeName"></h1>
-        <h2 >Ingredients:</h2>
-        <p>
-          <span id="recipeIngredients"></span>
-        </p>
-        <h2 class="custom-font" >Instructions:</h2>
+
+    <div class="main-content">
+      <div class="center-content">
+
         
-        <p>
-          <span id="recipeInstructions"></span>
-        </p>
-        <img
-          id="recipeImage"
-          src=""
-          alt="Recipe Image"
-          style="max-width: 300px; height: auto"
-        />
+
+        <h1 class="uppercase" id="recipeName"></h1>
+          <h2>Ingredients:</h2>
+          <ul id="recipeIngredients"></ul>
+  
+          <div>
+            <img class="" id="recipeImage" src="" alt="Recipe Image" />
+            <h2 class="custom-font">Instructions:</h2>
+            <p>
+              <span id="recipeInstructions"
+                >Your recipe instructions here...</span
+              >
+            </p>
+          </div>
+  
         <div>
           <a id="editButton" href=""><button type="button">Edit</button></a>
           <button id="deleteButton" type="button">Delete</button>
         </div>
-      </div>
+      <div>
     </div>
 
     <script src="scripts.js"></script>
@@ -66,8 +65,19 @@
 
       function displayItem(item) {
         document.getElementById("recipeName").textContent = item.name;
-        document.getElementById("recipeIngredients").textContent =
-          item.ingredients;
+        const ingredientsList = item.ingredients.split(', '); // Split the ingredients string into an array
+  const ingredientsContainer = document.getElementById("recipeIngredients");
+  ingredientsContainer.innerHTML = ''; // Clear existing content
+
+  // Create a list item for each ingredient and append it to the container
+  ingredientsList.forEach(ingredient => {
+    const li = document.createElement('li');
+    li.textContent = ingredient;
+    ingredientsContainer.appendChild(li);
+  });
+
+
+
         document.getElementById("recipeInstructions").textContent =
           item.instructions;
         document.getElementById("recipeImage").src =
