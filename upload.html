@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Image Upload to S3</title>
+  </head>
+  <body>
+    <form id="upload-form">
+      <input type="file" id="image-input" accept="image/*" required />
+      <button type="submit">Upload Image</button>
+    </form>
+
+    <script>
+      document
+        .getElementById("upload-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          let file;
+          const fileInput = document.getElementById("image-input");
+
+          if (!fileInput.files.length) {
+            return alert("Please select a file.");
+          }
+          if (fileInput.files.length > 0) {
+            file = fileInput.files[0];
+            console.log("file", file);
+          } else {
+            alert("Please select an image file to upload.");
+            return Promise.reject(new Error("No image file selected")); // Rejects the promise if no file is selected
+          }
+
+          function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (event) => resolve(event.target.result);
+              reader.onerror = (error) => reject(error);
+              reader.readAsArrayBuffer(file);
+            });
+          }
+
+          let unique_id = "1234556";
+          console.log(unique_id);
+          // First, upload the image to S3
+          try {
+            const binaryData = await readFileAsArrayBuffer(file);
+            const imageUploadResponse = await fetch(
+              `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
+                unique_id
+              )}.jpg`,
+              {
+                method: "POST",
+                body: binaryData,
+              }
+            );
+
+            if (!imageUploadResponse.ok) {
+              throw new Error("Image upload failed");
+            }
+
+            console.log("Image upload successful");
+          } catch (error) {
+            console.error("Error uploading image:", error);
+            throw error; // Re-throw to be handled by the caller
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -3,88 +3,90 @@ function generateUniqueId() {
 }
 
 var callAPIPOSTRecipe = async (file, name, ingredients, instructions) => {
-    let unique_id = generateUniqueId();
-  
-    // First, upload the image to S3
-    try {
-      const binaryData = await readFileAsArrayBuffer(file);
-      const imageUploadResponse = await fetch(
-        `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(unique_id)}.jpg`,
-        {
-          method: "POST",
-          body: binaryData,
-        }
-      );
-  
-      if (!imageUploadResponse.ok) {
-        throw new Error("Image upload failed");
-      }
-  
-      console.log("Image upload successful");
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      throw error; // Re-throw to be handled by the caller
-    }
-  
-    // Then, post the recipe data to DynamoDB
-    try {
-      var requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ID: unique_id,
-          name: name,
-          ingredients: ingredients,
-          instructions: instructions,
-        }),
-      };
-  
-      const dbResponse = await fetch("https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe", requestOptions);
-      const dbResult = await dbResponse.text();
-  
-      if (!dbResponse.ok) {
-        throw new Error("DB update failed");
-      }
-  
-      console.log("DB update successful");
-      return dbResult;
-    } catch (error) {
-      console.error("Error updating DB:", error);
-      throw error; // Re-throw to be handled by the caller
-    }
-  };
-  
-  // Helper function to read file as ArrayBuffer
-  function readFileAsArrayBuffer(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => resolve(event.target.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsArrayBuffer(file);
-    });
-  }
-  
+  let unique_id = generateUniqueId();
 
-var callAPIGETRecipe = (RecipeID) => {
-  return fetch(
-    `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${RecipeID}`,
-    {
-      method: "GET",
-    }
-  )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+  // First, upload the image to S3
+  try {
+    const binaryData = await readFileAsArrayBuffer(file);
+    const imageUploadResponse = await fetch(
+      `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
+        unique_id
+      )}.jpg`,
+      {
+        method: "POST",
+        body: binaryData,
       }
-      return response.text(); // Make sure to return the response text here
-    })
-    .then((result) => {
-      return JSON.parse(result);
-    })
-    .catch((error) => {
-      console.log("error", error);
-      throw error;
-    });
+    );
+
+    console.log(binaryData);
+    if (!imageUploadResponse.ok) {
+      throw new Error("Image upload failed");
+    }
+
+    console.log("Image upload successful");
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error; // Re-throw to be handled by the caller
+  }
+
+  // Then, post the recipe data to DynamoDB
+  try {
+    var requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ID: unique_id,
+        name: name,
+        ingredients: ingredients,
+        instructions: instructions,
+      }),
+    };
+
+    const dbResponse = await fetch(
+      "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe",
+      requestOptions
+    );
+    const dbResult = await dbResponse.text();
+
+    if (!dbResponse.ok) {
+      throw new Error("DB update failed");
+    }
+
+    console.log("DB update successful");
+    return dbResult;
+  } catch (error) {
+    console.error("Error updating DB:", error);
+    throw error; // Re-throw to be handled by the caller
+  }
+};
+
+// Helper function to read file as ArrayBuffer
+function readFileAsArrayBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => resolve(event.target.result);
+    reader.onerror = (error) => reject(error);
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+var callAPIGETRecipe = async (RecipeID) => {
+  try {
+    const response = await fetch(
+      `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${RecipeID}`,
+      {
+        method: "GET",
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const result_1 = await response.text();
+    return JSON.parse(result_1);
+  } catch (error) {
+    console.log("error", error);
+    throw error;
+  }
 };
 
 // Function to store recipes in local storage
@@ -140,7 +142,9 @@ var displayCardItem = (item) => {
       </div>
 
       <div class="card-header">
-        <h3>${item.name}</h3>
+        <div class="card-title">
+          <h3>${item.name}</h3>
+        </div>
         <div class="card-actions">
           <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
           <button id="deleteButton" type="button">Delete</button>
@@ -234,31 +238,6 @@ var callAPIPATCHRecipe = () => {
   }
 };
 
-// Modify the button in the form to handle both post and patch
-var EditRecipeSubmit = () => {
-  callAPIPATCHRecipe();
-  //   cancelEdit(); // This function already does the required clearing and hiding
-};
-
-var CreateRecipeSubmit = async () => {
-  let file;
-  const fileInput = document.getElementById("fileInput");
-  if (fileInput.files.length > 0) {
-    file = fileInput.files[0];
-    console.log("file", file)
-    return callAPIPOSTRecipe(
-      // Returns the promise
-      file,
-      document.getElementById("name").value,
-      document.getElementById("ingredients").value,
-      document.getElementById("instructions").value
-    );
-  } else {
-    alert("Please select an image file to upload.");
-    return Promise.reject(new Error("No image file selected")); // Rejects the promise if no file is selected
-  }
-};
-
 var cancelEdit = () => {
   // Clearing the form fields
   document.getElementById("editingId").value = "";
@@ -268,24 +247,6 @@ var cancelEdit = () => {
 
   window.location.href = "/"; // Update this URL to your homepage URL if it's different
 };
-
-// var deleteItem = async (name) => {
-//   fetch(
-//     `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${name}`,
-//     {
-//       method: "DELETE",
-//     }
-//   )
-//     .then((response) => {
-//       console.log(response, "recipe deleted");
-//       if (response.ok) {
-//         callAPIGETRecipes(); // Refresh the list
-//       } else {
-//         console.error("Delete failed", response.status);
-//       }
-//     })
-//     .catch((error) => console.error("Error:", error));
-// };
 
 var deleteItem = async (name) => {
   try {

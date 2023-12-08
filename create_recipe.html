@@ -10,13 +10,20 @@
   </head>
   <body>
     <div class="navbar">
+      <div class="navbar-logo">
+        <h1 >T E</h1>
+        <h1 >L O</h1>
+        <h1 >G I</h1>
+        <h1 >U R</h1>
+        <h1 >O ~</h1>
+      </div>
       <a href="index.html"><button>Cookbook Home</button></a>
       <a href="create_recipe.html"><button>Create Recipe</button></a>
     </div>
 
     <div class="main-content">
       <h1>Create recipe</h1>
-      <form>
+      <form id="upload-form">
         <div class="form-group">
           <label for="name">Name</label>
           <input id="name" class="small-input" type="text" />
@@ -39,22 +46,41 @@
           <textarea id="instructions" rows="25" cols="100"></textarea>
         </div>
         <!-- Modify the button event -->
-        <button type="submit" onclick="handleSubmit()">Submit Recipe</button>
+        <button type="submit">Submit Recipe</button>
         <button type="clear">Clear</button>
       </form>
     </div>
 
     <script>
-      async function handleSubmit() {
-        try {
-          await CreateRecipeSubmit();
-          alert("Recipe created successfully");
-          window.location.href = "index.html"; // Navigate to the homepage
-        } catch (error) {
-          console.error("Error during recipe creation:", error);
-          // Optionally, display an error message to the user
-        }
-      }
+      document
+        .getElementById("upload-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          let file;
+          const fileInput = document.getElementById("fileInput");
+          if (fileInput.files.length > 0) {
+            file = fileInput.files[0];
+            let name = document.getElementById("name").value;
+            let ingredients = document.getElementById("ingredients").value;
+            let instructions = document.getElementById("instructions").value;
+
+            let unique_id = generateUniqueId();
+            console.log("hello");
+
+            await callAPIPOSTRecipe(
+              file,
+              document.getElementById("name").value,
+              document.getElementById("ingredients").value,
+              document.getElementById("instructions").value
+            );
+
+            // Navigate to index.html after successful deletion
+            window.location.href = "index.html";
+          } else {
+            alert("Please select an image file to upload.");
+          }
+        });
     </script>
     <script src="scripts.js"></script>
   </body>

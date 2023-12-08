@@ -7,18 +7,27 @@
   </head>
   <body>
     <div class="navbar">
+      <div class="navbar-logo">
+        <h1 >T E</h1>
+        <h1 >L O</h1>
+        <h1 >G I</h1>
+        <h1 >U R</h1>
+        <h1 >O ~</h1>
+      </div>
       <a href="index.html"><button>Cookbook Home</button></a>
       <a href="create_recipe.html"><button>Create Recipe</button></a>
     </div>
     <div class="content-container">
       <div class="main-content">
-        <h1>Display Recipe</h1>
-        <h2 id="recipeName"></h2>
+        <h1 class="uppercase" id="recipeName"></h1>
+        <h2 >Ingredients:</h2>
         <p>
-          <strong>Ingredients:</strong> <span id="recipeIngredients"></span>
+          <span id="recipeIngredients"></span>
         </p>
+        <h2 class="custom-font" >Instructions:</h2>
+        
         <p>
-          <strong>Instructions:</strong> <span id="recipeInstructions"></span>
+          <span id="recipeInstructions"></span>
         </p>
         <img
           id="recipeImage"

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Image Upload to S3</title>
+  </head>
+  <body>
+    <form id="upload-form">
+      <button type="submit">Upload Image</button>
+    </form>
+
+    <script>
+      document
+        .getElementById("upload-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          unique_id = "hello";
+          name = "hello";
+          ingredients = "Hello";
+          instructions = "hello";
+
+          try {
+            var requestOptions = {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ID: unique_id,
+                name: name,
+                ingredients: ingredients,
+                instructions: instructions,
+              }),
+            };
+
+            const dbResponse = await fetch(
+              "https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe",
+              requestOptions
+            );
+            const dbResult = await dbResponse.text();
+
+            if (!dbResponse.ok) {
+              throw new Error("DB update failed");
+            }
+
+            console.log("DB update successful");
+            return dbResult;
+          } catch (error) {
+            console.error("Error updating DB:", error);
+            throw error; // Re-throw to be handled by the caller
+          }
+        });
+    </script>
+  </body>
+</html>
