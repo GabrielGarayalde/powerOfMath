@@ -27,16 +27,15 @@
 } */
 
 h1,
-h2,
-h3 {
+h2{
   color: var(--beige-color);
   font-family: "belwemonoregular", sans-serif;
 }
 
-/* h3 {
+h3 {
   color: var(--beige-color);
   font-family: "Montserrat", sans-serif;
-} */
+}
 
 p,
 body {
@@ -56,8 +55,13 @@ h2 {
   font-weight: 100;
 }
 h3 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 400;
+}
+
+a {
+  text-decoration: none; /* Removes underlines from all links in the navbar */
+  color: inherit; /* Optional: ensures the link inherits the text color from its parent */
 }
 
 .uppercase {
@@ -168,15 +172,14 @@ textarea:focus {
 .results {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: center;
   padding: 20px;
 }
 .card {
   background-color: var(--card-bg-color);
   box-shadow: 2px 2px 10px var(--card-shadow-color);
-  /* border: 1px solid #ddd; */
   border-radius: 10px;
-  margin: 10px;
+  margin: 25px;
   width: 250px;
   transition: transform 0.3s ease; /* Smooth transition effect */
   position: relative;
@@ -237,6 +240,9 @@ textarea:focus {
 }
 
 /* MAIN CONTENT */
+.squashed {
+  line-height: 1
+}
 .center-content {
   max-width: 600px;
   display: flex;
@@ -246,24 +252,89 @@ textarea:focus {
 }
 
 .main-content {
-  max-width: 1000px;
+  margin-top: 100px;
   align-items: center;
-  margin-left: 220px;
   padding: 20px;
 }
 
+@media (min-width: 768px) {
+  .main-content {
+    margin-top: 0;
+
+    max-width: 1000px;
+    align-items: center;
+    padding: 20px;
+    margin-left: 220px;
+  }
+}
 /* NAVBAR */
 .navbar {
   position: fixed;
-  width: 140px; /* Adjust width as needed */
-  height: 100%;
+  width: 100%; /* Full width */
+  height: 75px; /* Adjust height automatically */
+  top: 0; /* Positioned at the top */
+  left: 0; /* Aligned to the left */
+  padding: 10px; /* Adjust padding as needed */
+  display: flex; /* Use flexbox for horizontal alignment */
+  flex-direction: row; /* Align items in a row */
+  justify-content: space-between; /* Distribute space around items */
+  align-items: center; /* Align items vertically in the center */
   background-color: var(--navbar-bg-color);
-  padding: 25px;
+  z-index: 1000; /* High z-index to ensure it's above other elements */
+
 }
 
+/* Styles for Dropdown Menu */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100px;
+  right: 0;
+  /* background-color: #f9f9f9; */
+  min-width: 160px;
+  /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
+  z-index: 1;
+}
+
+.dropdown-menu {
+  color: black;
+  /* padding: 12px 16px; */
+  text-decoration: none;
+}
+
+.dropdown-items {
+  display: flex;
+  flex-direction: column;
+
+}
+
+/* Styles for Dropdown Button */
+.dropdown-button {
+  width: 100px;
+  background-color: #4CAF50; /* Adjust color as needed */
+  color: white;
+  padding: 10px;
+  margin: 0 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.navbar-buttons {
+  display: flex;
+  flex-direction: row; /* Align items in a row */
+  display: none;
+}
+
+/* Hide the mobile h1 in desktop view */
+.navbar h1.mobile {
+  display: block;
+}
+.navbar h1.original {
+  display: none;
+}
 .navbar button {
   margin-left: 0;
-  width: 100%;
+  /* width: 100%; */
   padding: 10px;
   margin-bottom: 10px;
   background-color: var(--accent-color);
@@ -280,10 +351,48 @@ textarea:focus {
   line-height: 1;
   margin: 0;
 }
+/* Hide Dropdown and Show Regular Buttons on Larger Screens */
+@media (min-width: 768px) {
+  .dropdown-menu, .dropdown-button, .dropdown-items {
+    display: none; /* Hide dropdown elements */
+  }
 
-.navbar-logo {
-  padding-bottom: 2rem;
+  .navbar-buttons {
+    display: block; /* Show regular buttons */
+  }
 }
+
+
+
+@media (min-width: 768px) {
+  .navbar {
+    position: fixed;
+    width: 140px; /* Adjust width as needed */
+    height: 100%;
+    padding: 25px;
+    flex-direction: column; /* Align items in a row */
+    justify-content: start; /* Distribute space around items */
+    align-items: center;
+  }
+  .navbar h1.original {
+    display: block;
+  }
+
+  .navbar h1.mobile {
+    display: none;
+  }
+  .navbar-logo {
+    padding-bottom: 2rem;
+  }
+
+  .navbar-buttons {
+    flex-direction: column; /* Align items in a row */
+
+  }
+}
+
+
+
 
 /* Display Recipe */
 #recipeImage {

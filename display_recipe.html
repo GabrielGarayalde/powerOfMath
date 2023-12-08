@@ -8,19 +8,35 @@
   <body>
     <div class="navbar">
       <div class="navbar-logo">
-        <h1>T E L O G I U R O ~</h1>
-
+        <a href="index.html">
+          <div>
+            <h1 class="original">T E L O G I U R O ~</h1>
+            <h1 class="mobile">T L G</h1>
+          </div>
+        </a>
       </div>
-      <a href="index.html"><button>Cookbook Home</button></a>
-      <a href="create_recipe.html"><button>Create Recipe</button></a>
+      <!-- Dropdown Button -->
+      <button id="dropdownButton" class="dropdown-button" onclick="toggleDropdownMenu()">Menu</button>
+
+      <!-- Dropdown Menu -->
+      <div id="dropdownMenu" class="dropdown-menu">
+        <div class="dropdown-items">
+          <a href="index.html"><button>Cookbook Home</button></a>
+          <a href="create_recipe.html"><button>Create Recipe</button></a>
+        </div>
+      </div>
+
+      <!-- Regular Buttons (Hidden in Mobile View initially) -->
+      <div class="navbar-buttons">
+        <a href="index.html"><button>Cookbook Home</button></a>
+        <a href="create_recipe.html"><button>Create Recipe</button></a>
+      </div>
     </div>
 
     <div class="main-content">
       <div class="center-content">
 
-        
-
-        <h1 class="uppercase" id="recipeName"></h1>
+        <h1 class="uppercase squashed" id="recipeName"></h1>
           <h2>Ingredients:</h2>
           <ul id="recipeIngredients"></ul>
   
