@@ -41,7 +41,8 @@
           <ul id="recipeIngredients"></ul>
   
           <div>
-            <img class="" id="recipeImage" src="" alt="Recipe Image" />
+            <img class="" id="recipeImage1" src="" alt="Recipe Image" />
+            <img class="" id="recipeImage2" src="" alt="Recipe Image" />
             <h2 class="custom-font">Instructions:</h2>
             <p>
               <span id="recipeInstructions"
@@ -71,6 +72,7 @@
         if (recipeId) {
           callAPIGETRecipe(recipeId)
             .then((response) => {
+              console.log(response)
               displayItem(response);
             })
             .catch((error) => {
@@ -82,22 +84,25 @@
       function displayItem(item) {
         document.getElementById("recipeName").textContent = item.name;
         const ingredientsList = item.ingredients.split(', '); // Split the ingredients string into an array
-  const ingredientsContainer = document.getElementById("recipeIngredients");
-  ingredientsContainer.innerHTML = ''; // Clear existing content
+        const ingredientsContainer = document.getElementById("recipeIngredients");
+        ingredientsContainer.innerHTML = ''; // Clear existing content
 
-  // Create a list item for each ingredient and append it to the container
-  ingredientsList.forEach(ingredient => {
-    const li = document.createElement('li');
-    li.textContent = ingredient;
-    ingredientsContainer.appendChild(li);
-  });
+        // Create a list item for each ingredient and append it to the container
+        ingredientsList.forEach(ingredient => {
+          const li = document.createElement('li');
+          li.textContent = ingredient;
+          ingredientsContainer.appendChild(li);
+        });
 
 
 
         document.getElementById("recipeInstructions").textContent =
           item.instructions;
-        document.getElementById("recipeImage").src =
-          "data:image/jpeg;base64," + item.image;
+
+        document.getElementById("recipeImage1").src =
+          "data:image/jpeg;base64," + item.image1;
+        document.getElementById("recipeImage2").src =
+          "data:image/jpeg;base64," + item.image2;
 
         // Update the Edit button's href with the recipe ID
         document.getElementById(

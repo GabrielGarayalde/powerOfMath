@@ -37,80 +37,94 @@
     </div>
 
     <div class="main-content">
-      <h1>Create recipe</h1>
-      <form id="upload-form">
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input
-            id="name"
-            class="small-input"
-            type="text"
-            placeholder="Name..."
-          />
-        </div>
+      <div class="center-content">
 
-        <div class="form-group" id="ingredient-list">
-          <label for="ingredient-row">Ingredients</label>
-          <div class="ingredient-row">
-            <input
-              class="ingredient-name"
-              type="text"
-              placeholder="Ingredient"
-            />
-            <input
-              class="ingredient-quantity"
-              type="text"
-              placeholder="Quantity"
-            />
-          </div>
-          <div class="ingredient-row">
-            <input
-              class="ingredient-name"
-              type="text"
-              placeholder="Ingredient"
-            />
-            <input
-              class="ingredient-quantity"
-              type="text"
-              placeholder="Quantity"
-            />
-          </div>
-          <div class="ingredient-row">
-            <input
-              class="ingredient-name"
-              type="text"
-              placeholder="Ingredient"
-            />
-            <input
-              class="ingredient-quantity"
-              type="text"
-              placeholder="Quantity"
-            />
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label for="fileInput">Upload Photo</label>
-          <input
-            class="small-input"
-            type="file"
-            id="fileInput"
-            accept=".jpg, .jpeg"
-          />
-        </div>
-        <div class="form-group">
-          <label for="instructions">Instructions</label>
-          <textarea
-            id="instructions"
-            rows="25"
-            cols="100"
-            placeholder="Write instructions here..."
-          ></textarea>
-        </div>
-        <!-- Modify the button event -->
-        <button type="submit">Submit Recipe</button>
-        <button type="clear">Clear</button>
-      </form>
+        <h1>Create recipe</h1>
+        <form id="upload-form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              id="name"
+              class="small-input"
+              type="text"
+              placeholder="Name..."
+            />
+          </div>
+  
+          <div class="form-group" id="ingredient-list">
+            <label for="ingredient-row">Ingredients</label>
+            <div class="ingredient-row">
+              <input
+                class="ingredient-name"
+                type="text"
+                placeholder="Ingredient"
+              />
+              <input
+                class="ingredient-quantity"
+                type="text"
+                placeholder="Quantity"
+              />
+            </div>
+            <div class="ingredient-row">
+              <input
+                class="ingredient-name"
+                type="text"
+                placeholder="Ingredient"
+              />
+              <input
+                class="ingredient-quantity"
+                type="text"
+                placeholder="Quantity"
+              />
+            </div>
+            <div class="ingredient-row">
+              <input
+                class="ingredient-name"
+                type="text"
+                placeholder="Ingredient"
+              />
+              <input
+                class="ingredient-quantity"
+                type="text"
+                placeholder="Quantity"
+              />
+            </div>
+          </div>
+  
+          <div class="form-group">
+            <label for="fileInput1">Upload First Photo</label>
+            <input
+              class="small-input"
+              type="file"
+              id="fileInput1"
+              accept=".jpg, .jpeg"
+            />
+          </div>
+          <div class="form-group">
+            <label for="fileInput2">Upload Second Photo</label>
+            <input
+              class="small-input"
+              type="file"
+              id="fileInput2"
+              accept=".jpg, .jpeg"
+            />
+          </div>
+          <div class="form-group">
+            <label for="instructions">Instructions</label>
+            <textarea
+              id="instructions"
+              rows="25"
+              cols="100"
+              placeholder="Write instructions here..."
+            ></textarea>
+          </div>
+          <!-- Modify the button event -->
+          <button type="submit">Submit Recipe</button>
+          <button type="clear">Clear</button>
+        </form>
+      </div>
+
     </div>
 
     <script>
@@ -137,9 +151,11 @@
         .addEventListener("submit", async function (e) {
           e.preventDefault();
 
-          const fileInput = document.getElementById("fileInput");
-          if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
+          const fileInput1 = document.getElementById("fileInput1");
+          const fileInput2 = document.getElementById("fileInput2");
+          if (fileInput1.files.length > 0 && fileInput2.files.length > 0) {
+            const file1 = fileInput1.files[0];
+            const file2 = fileInput2.files[0];
             const name = document.getElementById("name").value;
             const instructions = document.getElementById("instructions").value;
             const ingredientRows = document.querySelectorAll(".ingredient-row");
@@ -164,9 +180,12 @@
             }
 
             let unique_id = generateUniqueId();
+
             console.log("Ingredients string: ", ingredients);
 
-            await callAPIPOSTRecipe(file, name, ingredients, instructions);
+            await callAPIPOSTRecipeImage(unique_id + "_1", file1);
+            await callAPIPOSTRecipeImage(unique_id + "_2", file2);
+            await callAPIPOSTRecipeDB(unique_id, name, ingredients, instructions);
 
             // Navigate to index.html after successful submission
             window.location.href = "index.html";
@@ -175,35 +194,7 @@
           }
         });
 
-      // document
-      //   .getElementById("upload-form")
-      //   .addEventListener("submit", async function (e) {
-      //     e.preventDefault();
-
-      //     let file;
-      //     const fileInput = document.getElementById("fileInput");
-      //     if (fileInput.files.length > 0) {
-      //       file = fileInput.files[0];
-      //       let name = document.getElementById("name").value;
-      //       let ingredients = document.getElementById("ingredients").value;
-      //       let instructions = document.getElementById("instructions").value;
-
-      //       let unique_id = generateUniqueId();
-      //       console.log("hello");
-
-      //       await callAPIPOSTRecipe(
-      //         file,
-      //         document.getElementById("name").value,
-      //         document.getElementById("ingredients").value,
-      //         document.getElementById("instructions").value
-      //       );
-
-      //       // Navigate to index.html after successful deletion
-      //       window.location.href = "index.html";
-      //     } else {
-      //       alert("Please select an image file to upload.");
-      //     }
-      //   });
+      
     </script>
     <script src="scripts.js"></script>
   </body>

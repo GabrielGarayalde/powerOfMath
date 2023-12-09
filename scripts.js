@@ -2,10 +2,7 @@ function generateUniqueId() {
   return Math.random().toString(36).substring(2, 10);
 }
 
-var callAPIPOSTRecipe = async (file, name, ingredients, instructions) => {
-  let unique_id = generateUniqueId();
-
-  // First, upload the image to S3
+var callAPIPOSTRecipeImage = async (unique_id, file) => {
   try {
     const binaryData = await readFileAsArrayBuffer(file);
     const imageUploadResponse = await fetch(
@@ -28,8 +25,14 @@ var callAPIPOSTRecipe = async (file, name, ingredients, instructions) => {
     console.error("Error uploading image:", error);
     throw error; // Re-throw to be handled by the caller
   }
+};
 
-  // Then, post the recipe data to DynamoDB
+var callAPIPOSTRecipeDB = async (
+  unique_id,
+  name,
+  ingredients,
+  instructions
+) => {
   try {
     var requestOptions = {
       method: "POST",
@@ -91,7 +94,6 @@ var callAPIGETRecipe = async (RecipeID) => {
 
 // Function to store recipes in local storage
 function storeRecipesInCache(recipes) {
-  console.log("result: ", recipes);
   localStorage.setItem("recipes", JSON.stringify(recipes));
 }
 
@@ -111,6 +113,8 @@ var callAPIGETRecipes = async () => {
       }
     );
     const result_1 = await response.json();
+    console.log("result: ", result_1);
+
     storeRecipesInCache(result_1);
     return result_1;
   } catch (error) {
@@ -123,7 +127,7 @@ var displayDynamoDBItems = (data) => {
   // data = JSON.parse(data);
   var resultsElement = document.querySelector(".results");
   resultsElement.innerHTML = "";
-
+  console.log("data: ", data);
   for (const item of data) {
     // console.log(item);
     displayCardItem(item);
@@ -138,7 +142,7 @@ var displayCardItem = (item) => {
     <div class="card" data-id="${item.ID}">
 
       <div class="image-container">
-        <img src="data:image/jpeg;base64,${item.image}" alt="${item.name}" class="square-image">
+        <img src="data:image/jpeg;base64,${item.image1}" alt="${item.name}" class="square-image">
       </div>
 
       <div class="card-header">
@@ -146,8 +150,10 @@ var displayCardItem = (item) => {
           <h3>${item.name}</h3>
         </div>
         <div class="card-actions">
+        
           <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
           <button id="deleteButton" type="button">Delete</button>
+
         </div>
       </div>
 
@@ -297,8 +303,8 @@ function sortRecipes(sortOption) {
   displayDynamoDBItems(recipes);
 }
 
-
 function toggleDropdownMenu() {
   var dropdownMenu = document.getElementById("dropdownMenu");
-  dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+  dropdownMenu.style.display =
+    dropdownMenu.style.display === "block" ? "none" : "block";
 }

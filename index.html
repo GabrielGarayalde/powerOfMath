@@ -23,7 +23,13 @@
         </a>
       </div>
       <!-- Dropdown Button -->
-      <button id="dropdownButton" class="dropdown-button" onclick="toggleDropdownMenu()">Menu</button>
+      <button
+        id="dropdownButton"
+        class="dropdown-button"
+        onclick="toggleDropdownMenu()"
+      >
+        Menu
+      </button>
 
       <!-- Dropdown Menu -->
       <div id="dropdownMenu" class="dropdown-menu">
@@ -57,6 +63,7 @@
     <!-- Inline script to run specific functions for this page -->
     <script>
       
+
       document.addEventListener("DOMContentLoaded", function () {
         const cachedRecipes = getRecipesFromCache();
 
