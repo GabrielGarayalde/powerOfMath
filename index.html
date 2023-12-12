@@ -62,7 +62,27 @@
 
     <!-- Inline script to run specific functions for this page -->
     <script>
-      
+      document.querySelector(".results").addEventListener("click", function (event) {
+        if (event.target.classList.contains("like-button")) {
+          const cardElement = event.target.closest(".card");
+          const recipeId = cardElement.getAttribute("data-id");
+          console.log("liked!");
+
+          // Check the current background color of the like button
+          if (event.target.style.backgroundColor === "red") {
+            // If it's red, change it back to the original color
+            event.target.style.backgroundColor = "";
+          } else {
+            // If it's not red, change it to red
+            event.target.style.backgroundColor = "red";
+          }
+
+          // Stop the event from propagating to parent elements
+          event.stopPropagation();
+          // Prevent the default action of the anchor tag
+          event.preventDefault();
+        }
+      });
 
       document.addEventListener("DOMContentLoaded", function () {
         const cachedRecipes = getRecipesFromCache();
@@ -79,6 +99,7 @@
             console.error("error", error); // Error handling
           });
       });
+
       document
         .querySelector(".results")
         .addEventListener("click", async function (event) {

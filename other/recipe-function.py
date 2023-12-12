@@ -23,6 +23,7 @@ def lambda_handler(event, context):
 
     httpMethod = event['httpMethod']
     path = event['path']
+    
 
     if httpMethod == 'POST' :
         response = postResponse(event)
@@ -72,7 +73,7 @@ def patchRecipe(ID, new_name, new_ingredients, new_instructions):
         
     except Exception as e:
         logger.error("Error patching item in DynamoDB: %s", e)
-        return buildResponse(500, "Internal Server Error"  + str(e))
+        return buildResponse(500, "Internal1 Server Error"  + str(e))
     
 
 def postResponse(event):
@@ -91,8 +92,6 @@ def postResponse(event):
             'instructions': instructions,
             'created': now
         })
-
-
 
     response = buildResponse(200, putResponse)
 
@@ -123,9 +122,7 @@ def deleteResponse(recipe_id):
 
     
 def getRecipe(recipe_id):
-    # Extract the recipe ID from the event (e.g., from path parameters)
-    # recipe_id = event['pathParameters']['id']
-    
+
     # Retrieve the specific recipe from DynamoDB
     try:
         response = table.get_item(Key={'ID': recipe_id})
@@ -137,20 +134,26 @@ def getRecipe(recipe_id):
     if not item:
         return buildResponse(404, {"message": "Recipe not found"})
 
-    # Construct the S3 key for the recipe's image
-    s3_key = f"{recipe_id}.jpg"
-    
-    try:
-        # Attempt to fetch the image from S3
-        fileObj = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key)
-        file_content = fileObj["Body"].read()
-        encoded_content = base64.b64encode(file_content).decode('utf-8')
+   
 
-        # Attach the encoded image data to the item
-        item['image'] = encoded_content
+    s3_key1 = f"{recipe_id}_1.jpg"
+    s3_key2 = f"{recipe_id}_2.jpg"
+        
+    try:
+        fileObj1 = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key1)
+        file_content1 = fileObj1["Body"].read()
+        encoded_content1 = base64.b64encode(file_content1).decode('utf-8')
+
+        fileObj2 = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key2)
+        file_content2 = fileObj2["Body"].read()
+        encoded_content2 = base64.b64encode(file_content2).decode('utf-8')
+
+        item['image1'] = encoded_content1
+        item['image2'] = encoded_content2
+        
     except Exception as e:
-        print(f"Error fetching image from S3 for {s3_key}: {str(e)}")
-        # Handle missing images or other errors - perhaps by setting a default image or flag
+        print(f"Error fetching image from S3 for {s3_key1}: {str(e)}")
+    #     Handle missing images or other errors - perhaps by setting a default image or flag
 
     # Construct the response body with the single recipe
     response = buildResponse(200, item)
@@ -166,24 +169,24 @@ def getRecipes():
     # Iterate over each item to fetch the corresponding image from S3
     for item in items:
         # Construct the S3 key based on the item's ID
-        s3_key = f"{item['ID']}.jpg"
+        s3_key1 = f"{item['ID']}_1.jpg"
+        s3_key2 = f"{item['ID']}_2.jpg"
         
         try:
-            # Attempt to fetch the image from S3
-            fileObj = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key)
-            file_content = fileObj["Body"].read()
-            encoded_content = base64.b64encode(file_content).decode('utf-8')
+            fileObj1 = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key1)
+            file_content1 = fileObj1["Body"].read()
+            encoded_content1 = base64.b64encode(file_content1).decode('utf-8')
+    
+            fileObj2 = s3.get_object(Bucket='recipe-bucket-anna', Key=s3_key2)
+            file_content2 = fileObj2["Body"].read()
+            encoded_content2 = base64.b64encode(file_content2).decode('utf-8')
 
-            # Attach the encoded image data to the item
-            item['image'] = encoded_content
+            item['image1'] = encoded_content1
+            item['image2'] = encoded_content2
+            
         except Exception as e:
             print(f"Error fetching image from S3 for {s3_key}: {str(e)}")
-            # Handle missing images or other errors - perhaps by setting a default image or flag
-
-    # # Construct the response body
-    # body = {
-    #     "recipes": items
-    # }
+        
 
     response = buildResponse(200, items)
     return response

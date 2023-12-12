@@ -429,13 +429,10 @@ textarea:focus {
   flex-basis: 100px; /* Adjust width as needed */
 }
 
-.liked {
-  background-color: #ff0000; /* Red color for liked state */
-}
-
-#likeButton {
-  width: 50px;
-  height: 50px;
-  background-color: white;
-  border: 1px solid black
+.like-button {
+  background-color: transparent;
+  border: none;
+  color: red;
+  font-size: 1.5em;
+  cursor: pointer;
 }

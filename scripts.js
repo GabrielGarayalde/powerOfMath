@@ -150,7 +150,7 @@ var displayCardItem = (item) => {
           <h3>${item.name}</h3>
         </div>
         <div class="card-actions">
-        
+          <button class="like-button">❤️</button>
           <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
           <button id="deleteButton" type="button">Delete</button>
 
