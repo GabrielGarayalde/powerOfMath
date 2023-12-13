@@ -27,7 +27,7 @@
 } */
 
 h1,
-h2{
+h2 {
   color: var(--beige-color);
   font-family: "belwemonoregular", sans-serif;
 }
@@ -241,7 +241,7 @@ textarea:focus {
 
 /* MAIN CONTENT */
 .squashed {
-  line-height: 1
+  line-height: 1;
 }
 .center-content {
   max-width: 600px;
@@ -281,7 +281,6 @@ textarea:focus {
   align-items: center; /* Align items vertically in the center */
   background-color: var(--navbar-bg-color);
   z-index: 1000; /* High z-index to ensure it's above other elements */
-
 }
 
 /* Styles for Dropdown Menu */
@@ -305,13 +304,12 @@ textarea:focus {
 .dropdown-items {
   display: flex;
   flex-direction: column;
-
 }
 
 /* Styles for Dropdown Button */
 .dropdown-button {
   width: 100px;
-  background-color: #4CAF50; /* Adjust color as needed */
+  background-color: #4caf50; /* Adjust color as needed */
   color: white;
   padding: 10px;
   margin: 0 10px;
@@ -353,7 +351,9 @@ textarea:focus {
 }
 /* Hide Dropdown and Show Regular Buttons on Larger Screens */
 @media (min-width: 768px) {
-  .dropdown-menu, .dropdown-button, .dropdown-items {
+  .dropdown-menu,
+  .dropdown-button,
+  .dropdown-items {
     display: none; /* Hide dropdown elements */
   }
 
@@ -361,8 +361,6 @@ textarea:focus {
     display: block; /* Show regular buttons */
   }
 }
-
-
 
 @media (min-width: 768px) {
   .navbar {
@@ -387,24 +385,27 @@ textarea:focus {
 
   .navbar-buttons {
     flex-direction: column; /* Align items in a row */
-
   }
 }
 
-
-
-
 /* Display Recipe */
-#recipeImage1, #recipeImage2 {
+#recipeImage1 {
   width: 250px;
   height: 250px;
   float: left;
-
   position: relative;
-
   right: 100px;
-  margin-right: -75px;
+  margin-right: -50px;
 
+}
+
+#recipeImage2 {
+  width: 250px;
+  height: 250px;
+  float: right;
+  position: relative;
+  left: 100px;
+  margin-left: -75px;
   top: 100px;
   margin-bottom: 100px;
 }
@@ -430,9 +431,10 @@ textarea:focus {
 }
 
 .like-button {
-  background-color: transparent;
-  border: none;
-  color: red;
-  font-size: 1.5em;
   cursor: pointer;
+  font-size: 24px; /* Increase the font size to make the icon bigger */
+}
+
+.fa-solid {
+  color: red
 }
