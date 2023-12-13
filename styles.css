@@ -22,9 +22,6 @@
   src: url("../fonts/belwemonoitalic.otf") format("opentype");
 }
 
-/* .custom-font {
-  font-family: "MyCustomFont", sans-serif;
-} */
 
 h1,
 h2 {
@@ -396,7 +393,7 @@ textarea:focus {
   position: relative;
   right: 100px;
   margin-right: -50px;
-
+  object-fit: cover; /* Crop the image if necessary */
 }
 
 #recipeImage2 {
@@ -408,9 +405,15 @@ textarea:focus {
   margin-left: -75px;
   top: 100px;
   margin-bottom: 100px;
+  object-fit: cover; /* Crop the image if necessary */
 }
 
 /* CREATE RECIPE */
+.quote {
+  font-family: "belwemonoitalic", sans-serif;
+  text-align: right; /* Add this line to align the text to the right */
+}
+
 .ingredient-row {
   width: 500px;
   display: flex;
@@ -436,5 +439,5 @@ textarea:focus {
 }
 
 .fa-solid {
-  color: red
+  color: red;
 }

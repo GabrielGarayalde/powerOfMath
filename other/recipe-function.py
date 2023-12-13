@@ -42,20 +42,21 @@ def lambda_handler(event, context):
     elif httpMethod == 'PATCH' and path == recipe_path:
         recipe_id = event['queryStringParameters']['ID']
         body = json.loads(event['body'])
-        response = patchRecipe(recipe_id, body['name'], body['ingredients'], body['instructions'])
+        response = patchRecipe(recipe_id, body['name'], body['ingredients'], body['quote'], body['instructions'])
     else:
         response = buildResponse(400, 'Unsupported HTTP method')
 
     return response
 
-def patchRecipe(ID, new_name, new_ingredients, new_instructions):
+def patchRecipe(ID, new_name, new_ingredients, new_quote, new_instructions):
     try:
         response = table.update_item(
             Key={'ID': ID},
-            UpdateExpression='SET #nam = :nam, ingredients = :ing, instructions = :inst',
+            UpdateExpression='SET #nam = :nam, ingredients = :ing, quote = :quote, instructions = :inst',
             ExpressionAttributeValues={
                 ':nam': new_name,
                 ':ing': new_ingredients,
+                ':quote': new_quote,
                 ':inst': new_instructions
             },
             ExpressionAttributeNames={
@@ -82,6 +83,7 @@ def postResponse(event):
     unique_id       = requestBody['ID']
     name            = requestBody['name']
     ingredients     = requestBody['ingredients']
+    quote           = requestBody['quote']
     instructions    = requestBody['instructions']
 
     putResponse = table.put_item(
@@ -89,6 +91,7 @@ def postResponse(event):
             'ID': unique_id,
             'name': name,
             'ingredients': ingredients,
+            'quote': quote,
             'instructions': instructions,
             'created': now
         })
@@ -100,7 +103,7 @@ def postResponse(event):
     
 def deleteResponse(recipe_id):
     # Delete the item from DynamoDB
-    deleteResponse = table.delete_item(
+    table.delete_item(
         Key={'ID': recipe_id},
         ReturnValues='ALL_OLD'
     )
@@ -185,7 +188,7 @@ def getRecipes():
             item['image2'] = encoded_content2
             
         except Exception as e:
-            print(f"Error fetching image from S3 for {s3_key}: {str(e)}")
+            print(f"Error fetching image from S3 for {s3_key1}: {str(e)}")
         
 
     response = buildResponse(200, items)

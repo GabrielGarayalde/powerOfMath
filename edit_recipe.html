@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>To the Power of Math!</title>
+    <title>Te Lo Giuro</title>
     <link rel="stylesheet" type="text/css" href="styles.css" />
 
     <!-- Add hidden input to store the ID of the recipe being edited -->
@@ -50,10 +50,13 @@
           <label for="name">Name</label>
           <input id="name" class="small-input" type="text" />
         </div>
-        <div class="form-group">
-          <label for="ingredients">Ingredients</label>
-          <input id="ingredients" class="small-input" type="text" />
+
+        <div class="form-group" id="ingredient-list">
+          <label for="ingredient-row">Ingredients</label>
+          
+         
         </div>
+        
         <div class="form-group">
           <label for="fileInput">Upload Photo</label>
           <input
@@ -63,6 +66,7 @@
             accept=".jpg, .jpeg"
           />
         </div>
+        
         <div class="form-group">
           <label for="instructions">Instructions</label>
           <textarea id="instructions" rows="25" cols="100"></textarea>

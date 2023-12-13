@@ -44,6 +44,8 @@
             <ul id="recipeIngredients"></ul>
           </div>
   
+          <h2 class="quote belwemonoitalic" id="quote"></h2>
+
           <div>
             <img class="" id="recipeImage2" src="" alt="Recipe Image" />
             <h2 class="custom-font">Instructions:</h2>
@@ -97,7 +99,7 @@
           ingredientsContainer.appendChild(li);
         });
 
-
+        document.getElementById("quote").textContent = '"' + item.quote + '"';
 
         document.getElementById("recipeInstructions").textContent =
           item.instructions;

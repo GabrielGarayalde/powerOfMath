@@ -31,6 +31,7 @@ var callAPIPOSTRecipeDB = async (
   unique_id,
   name,
   ingredients,
+  quote,
   instructions
 ) => {
   try {
@@ -41,6 +42,7 @@ var callAPIPOSTRecipeDB = async (
         ID: unique_id,
         name: name,
         ingredients: ingredients,
+        quote: quote,
         instructions: instructions,
       }),
     };
@@ -129,7 +131,6 @@ var displayDynamoDBItems = (data) => {
   resultsElement.innerHTML = "";
   console.log("data: ", data);
   for (const item of data) {
-    // console.log(item);
     displayCardItem(item);
   }
 };
@@ -166,8 +167,38 @@ var displayEditItem = (result) => {
   // Populate form fields for editing
   document.getElementById("editingId").value = result.ID;
   document.getElementById("name").value = result.name;
-  document.getElementById("ingredients").value = result.ingredients;
   document.getElementById("instructions").value = result.instructions;
+
+  console.log("result: ", result.ingredients);
+  // Parse ingredients and fill in ingredient and quantity elements
+  var ingredients = result.ingredients.split(",");
+  var ingredientList = document.getElementById("ingredient-list");
+
+  console.log("ingredients: ", ingredients)
+  for (const ingredient of ingredients) {
+    var [name, quantity] = ingredient.split(":");
+
+    // Create div element for ingredient row
+    var ingredientRow = document.createElement("div");
+    ingredientRow.className = "ingredient-row";
+
+    // Create form elements for name and quantity
+    var nameInput = document.createElement("input");
+    nameInput.classList = "ingredient-name";
+    nameInput.type = "text";
+    nameInput.name = "ingredient-name";
+    nameInput.value = name.trim();
+    ingredientRow.appendChild(nameInput);
+
+    var quantityInput = document.createElement("input");
+    quantityInput.classList = "ingredient-quantity";
+    quantityInput.type = "text";
+    quantityInput.name = "ingredient-quantity";
+    quantityInput.value = quantity.trim();
+    ingredientRow.appendChild(quantityInput);
+
+    ingredientList.appendChild(ingredientRow);
+  }
 
   // Show the Cancel Edit button
   document.getElementById("cancelEditButton").style.display = "block";

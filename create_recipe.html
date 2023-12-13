@@ -19,7 +19,13 @@
         </a>
       </div>
       <!-- Dropdown Button -->
-      <button id="dropdownButton" class="dropdown-button" onclick="toggleDropdownMenu()">Menu</button>
+      <button
+        id="dropdownButton"
+        class="dropdown-button"
+        onclick="toggleDropdownMenu()"
+      >
+        Menu
+      </button>
 
       <!-- Dropdown Menu -->
       <div id="dropdownMenu" class="dropdown-menu">
@@ -38,8 +44,6 @@
 
     <div class="main-content">
       <div class="center-content">
-
-
         <h1>Create recipe</h1>
         <form id="upload-form">
           <div class="form-group">
@@ -51,7 +55,7 @@
               placeholder="Name..."
             />
           </div>
-  
+
           <div class="form-group" id="ingredient-list">
             <label for="ingredient-row">Ingredients</label>
             <div class="ingredient-row">
@@ -91,7 +95,7 @@
               />
             </div>
           </div>
-  
+
           <div class="form-group">
             <label for="fileInput1">Upload First Photo</label>
             <input
@@ -111,6 +115,15 @@
             />
           </div>
           <div class="form-group">
+            <label for="quote">Segreto della nonna</label>
+            <input
+              id="quote"
+              class="small-input"
+              type="text"
+              placeholder="Write a cool tip here.."
+            />
+          </div>
+          <div class="form-group">
             <label for="instructions">Instructions</label>
             <textarea
               id="instructions"
@@ -124,7 +137,6 @@
           <button type="clear">Clear</button>
         </form>
       </div>
-
     </div>
 
     <script>
@@ -158,6 +170,7 @@
             const file2 = fileInput2.files[0];
             const name = document.getElementById("name").value;
             const instructions = document.getElementById("instructions").value;
+            const quote = document.getElementById("quote").value;
             const ingredientRows = document.querySelectorAll(".ingredient-row");
 
             let ingredients = "";
@@ -185,7 +198,13 @@
 
             await callAPIPOSTRecipeImage(unique_id + "_1", file1);
             await callAPIPOSTRecipeImage(unique_id + "_2", file2);
-            await callAPIPOSTRecipeDB(unique_id, name, ingredients, instructions);
+            await callAPIPOSTRecipeDB(
+              unique_id,
+              name,
+              ingredients,
+              quote,
+              instructions
+            );
 
             // Navigate to index.html after successful submission
             window.location.href = "index.html";
@@ -193,8 +212,6 @@
             alert("Please select an image file to upload.");
           }
         });
-
-      
     </script>
     <script src="scripts.js"></script>
   </body>
