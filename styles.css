@@ -22,11 +22,18 @@
   src: url("../fonts/belwemonoitalic.otf") format("opentype");
 }
 
+h1, h2, h3, p, body, a, label, button, select, input, textarea {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 
 h1,
 h2 {
   color: var(--beige-color);
   font-family: "belwemonoregular", sans-serif;
+  margin: 1.2rem 0;
 }
 
 h3 {
@@ -410,6 +417,7 @@ textarea:focus {
 
 /* CREATE RECIPE */
 .quote {
+  font-size: 2.5rem;
   font-family: "belwemonoitalic", sans-serif;
   text-align: right; /* Add this line to align the text to the right */
 }
