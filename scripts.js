@@ -163,7 +163,6 @@ var displayCardItem = (item) => {
 
     </div>
     `;
-
 };
 
 var displayEditItem = (result) => {
@@ -203,10 +202,15 @@ var displayEditItem = (result) => {
 
     ingredientList.appendChild(ingredientRow);
   }
-
 };
 
-var callAPIPATCHRecipeDB = async (id, name, ingredients, quote, instructions) => {
+var callAPIPATCHRecipeDB = async (
+  id,
+  name,
+  ingredients,
+  quote,
+  instructions
+) => {
   var myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
 
@@ -237,15 +241,17 @@ var callAPIPATCHRecipeDB = async (id, name, ingredients, quote, instructions) =>
 };
 
 var callAPIPATCHLike = async (id, state) => {
-
   // Make PATCH request to update like state
-  fetch( `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Like?ID=${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ like: state }),
-  })
+  fetch(
+    `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Like?ID=${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ like: state }),
+    }
+  )
     .then((response) => {
       if (response.ok) {
         console.log("Like state updated successfully");
@@ -256,7 +262,7 @@ var callAPIPATCHLike = async (id, state) => {
     .catch((error) => {
       console.error("Error updating like state:", error);
     });
-}
+};
 
 var cancelEdit = () => {
   // Clearing the form fields
@@ -295,7 +301,8 @@ var deleteItem = async (name) => {
 // Function to sort recipes based on selected option
 function sortRecipes(sortOption) {
   const cachedRecipes = getRecipesFromCache();
-
+  // const cachedRecipes = callAPIGETRecipes();
+  console.log(sortOption);
   switch (sortOption) {
     case "name-asc":
       cachedRecipes.sort((a, b) => a.name.localeCompare(b.name));
@@ -313,18 +320,25 @@ function sortRecipes(sortOption) {
       break;
     case "like-first":
       cachedRecipes.sort((a, b) => {
-        if (a.like && !b.like) {
+        // Convert string values to boolean for comparison
+        const aLiked = a.like === "true";
+        const bLiked = b.like === "true";
+
+        if (aLiked && !bLiked) {
           return -1;
-        } else if (!a.like && b.like) {
+        } else if (!aLiked && bLiked) {
           return 1;
         } else {
-          return 0;
+          // Optionally, sort by name if both have likes or neither have likes
+          return a.name.localeCompare(b.name);
         }
       });
+      console.log(cachedRecipes);
       break;
+
     default:
-    // No sorting or default sorting logic if needed
   }
+
   displayDynamoDBItems(recipes);
 }
 

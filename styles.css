@@ -1,14 +1,15 @@
 :root {
-  --beige-color: beige;
-  --accent-color: #86c232;
-  --hover-color: #45a049;
-  --background-color: rgb(127, 127, 219);
+  --headings-color-1: rgb(117, 117, 106);
+  --headings-color-2: beige;
+  --accent-color: lightblue;
+  --hover-color: rgb(173, 201, 230)  ;
+  --background-color: beige;
   --input-focus-color: #547625;
   --card-bg-color: white;
   --card-shadow-color: rgba(0, 0, 0, 0.1);
   --text-color-dark: #333;
   --text-color-light: #666;
-  --navbar-bg-color: rgb(169, 143, 207);
+  --navbar-bg-color: rgb(65, 140, 225);
   --button-bg-color: #4caf50;
 }
 
@@ -31,14 +32,18 @@ h1, h2, h3, p, body, a, label, button, select, input, textarea {
 
 h1,
 h2 {
-  color: var(--beige-color);
+  color: var(--headings-color-1);
   font-family: "belwemonoregular", sans-serif;
   margin: 1.2rem 0;
 }
 
 h3 {
-  color: var(--beige-color);
+  color: var(--headings-color-1);
   font-family: "Montserrat", sans-serif;
+}
+
+.headings-light {
+  color: var(--headings-color-2);
 }
 
 p,
@@ -303,9 +308,9 @@ textarea:focus {
   min-width: 160px;
   /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
   z-index: 1;
-}
 
-.dropdown-menu {
+  transition: all 1s ease;
+
   color: black;
   /* padding: 12px 16px; */
   text-decoration: none;
