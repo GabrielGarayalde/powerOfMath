@@ -16,6 +16,7 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('powerOfMathDynamoTable')
 now = strftime("%a, %d %b %Y %H:%M", gmtime())
 
+like_path = '/Like'
 recipe_path = '/Recipe'
 recipes_path = '/Recipes'
 
@@ -43,6 +44,13 @@ def lambda_handler(event, context):
         recipe_id = event['queryStringParameters']['ID']
         body = json.loads(event['body'])
         response = patchRecipe(recipe_id, body['name'], body['ingredients'], body['quote'], body['instructions'])
+
+    elif httpMethod == 'PATCH' and path == like_path:
+        recipe_id = event['queryStringParameters']['ID']
+        body = json.loads(event['body'])
+        # response = buildResponse(200, body['like'])
+        response = patchLike(recipe_id, body['like'])
+    
     else:
         response = buildResponse(400, 'Unsupported HTTP method')
 
@@ -75,7 +83,31 @@ def patchRecipe(ID, new_name, new_ingredients, new_quote, new_instructions):
     except Exception as e:
         logger.error("Error patching item in DynamoDB: %s", e)
         return buildResponse(500, "Internal1 Server Error"  + str(e))
-    
+
+def patchLike(ID, new_like):
+    try:
+        response = table.update_item(
+            Key={'ID': ID},
+            UpdateExpression='SET #lik = :lik',
+            ExpressionAttributeValues={
+                ':lik': new_like
+            },
+            ExpressionAttributeNames={
+                '#lik': 'like'  # Map #nam to the attribute 'name'
+            },
+            ReturnValues='UPDATED_NEW'
+        )
+
+        body = {
+            'Operation': 'UPDATE',
+            'Message': 'SUCCESS',
+            'UpdatedAttributes': response
+        }
+        return buildResponse(200, body)
+        
+    except Exception as e:
+        logger.error("Error patching item in DynamoDB: %s", e)
+        return buildResponse(500, "Internal1 Server Error"  + str(e))
 
 def postResponse(event):
     requestBody = json.loads(event['body'])

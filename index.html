@@ -55,6 +55,7 @@
         <option value="name-desc">Sort by Name (Z-A)</option>
         <option value="date-recent-first">Date Created: Recent First</option>
         <option value="date-oldest-first">Date Created: Oldest First</option>
+        <option value="like-first">Sort by Liked first</option>
       </select>
       <!-- Display retrieved DynamoDB items here -->
       <div class="results"></div>
@@ -73,9 +74,11 @@
           if (event.target.classList.contains("fa-regular")) {
             event.target.classList.remove("fa-regular");
             event.target.classList.add("fa-solid");
+            callAPIPATCHLike(recipeId, "true"); // Send PATCH request with state as true
           } else {
             event.target.classList.remove("fa-solid");
             event.target.classList.add("fa-regular");
+            callAPIPATCHLike(recipeId, "false"); // Send PATCH request with state as false
           }
 
           event.stopPropagation();
@@ -83,6 +86,7 @@
         }
       });
 
+      
       // function to display the recipes
       document.addEventListener("DOMContentLoaded", function () {
         const cachedRecipes = getRecipesFromCache();

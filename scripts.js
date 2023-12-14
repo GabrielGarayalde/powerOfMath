@@ -138,6 +138,8 @@ var displayDynamoDBItems = (data) => {
 var displayCardItem = (item) => {
   var resultsElement = document.querySelector(".results");
 
+  var likeState = item.like == "true" ? "fa-solid" : "fa-regular";
+
   // Wrap the card content in an anchor tag
   resultsElement.innerHTML += `<a href="display_recipe.html?id=${item.ID}"  class="card-link">
     <div class="card" data-id="${item.ID}">
@@ -150,8 +152,9 @@ var displayCardItem = (item) => {
         <div class="card-title">
           <h3>${item.name}</h3>
         </div>
+        </a>
         <div class="card-actions">
-          <i class="like-button fa-regular fa-heart"></i>
+          <i class=" like-button fa-heart ${likeState}" "></i>
           <a href="edit_recipe.html?id=${item.ID}"><button type="button">Edit</button></a>
           <button id="deleteButton" type="button">Delete</button>
 
@@ -159,14 +162,15 @@ var displayCardItem = (item) => {
       </div>
 
     </div>
+    `;
 
-    </a>`;
 };
 
 var displayEditItem = (result) => {
   // Populate form fields for editing
   document.getElementById("editingId").value = result.ID;
   document.getElementById("name").value = result.name;
+  document.getElementById("quote").value = result.quote;
   document.getElementById("instructions").value = result.instructions;
 
   console.log("result: ", result.ingredients);
@@ -174,7 +178,7 @@ var displayEditItem = (result) => {
   var ingredients = result.ingredients.split(",");
   var ingredientList = document.getElementById("ingredient-list");
 
-  console.log("ingredients: ", ingredients)
+  console.log("ingredients: ", ingredients);
   for (const ingredient of ingredients) {
     var [name, quantity] = ingredient.split(":");
 
@@ -200,80 +204,59 @@ var displayEditItem = (result) => {
     ingredientList.appendChild(ingredientRow);
   }
 
-  // Show the Cancel Edit button
-  document.getElementById("cancelEditButton").style.display = "block";
 };
 
-var callAPIPATCHRecipe = () => {
-  var id = document.getElementById("editingId").value;
-  var name = document.getElementById("name").value;
-  var ingredients = document.getElementById("ingredients").value;
-  var instructions = document.getElementById("instructions").value;
+var callAPIPATCHRecipeDB = async (id, name, ingredients, quote, instructions) => {
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
 
-  let fileInput = document.getElementById("fileInput");
-  let file = fileInput.files.length > 0 ? fileInput.files[0] : null;
-
-  var updateRecipeData = () => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var request = {
-      name: name,
-      ingredients: ingredients,
-      instructions: instructions,
-    };
-
-    var requestOptions = {
-      method: "PATCH",
-      headers: myHeaders,
-      body: JSON.stringify(request),
-      redirect: "follow",
-    };
-
-    fetch(
-      `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${id}`,
-      requestOptions
-    )
-      .then((response) => response.text())
-      .then((result) => alert("recipe patched succesfully!"))
-      .catch((error) => console.log("error", error));
+  var request = {
+    name: name,
+    ingredients: ingredients,
+    quote: quote,
+    instructions: instructions,
   };
 
-  if (file) {
-    // If a file is selected, upload it first
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const binaryData = event.target.result;
-      fetch(
-        `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
-          id
-        )}.jpg`,
-        {
-          method: "POST",
-          body: binaryData, // Send the binary data directly
-        }
-      )
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.text();
-        })
-        .then((data) => {
-          console.log("Image upload successful:", data);
-          updateRecipeData(); // Update the recipe data after image upload
-        })
-        .catch((error) => {
-          console.error("Error uploading image:", error);
-          updateRecipeData(); // Update the recipe data even if image upload fails
-        });
-    };
-    reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
-  } else {
-    // If no file is selected, update the recipe data directly
-    updateRecipeData();
+  var requestOptions = {
+    method: "PATCH",
+    headers: myHeaders,
+    body: JSON.stringify(request),
+    redirect: "follow",
+  };
+
+  try {
+    const response = await fetch(
+      `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${id}`,
+      requestOptions
+    );
+    const result = await response.text();
+    alert("recipe patched successfully!");
+  } catch (error) {
+    console.log("error", error);
   }
 };
+
+var callAPIPATCHLike = async (id, state) => {
+
+  // Make PATCH request to update like state
+  fetch( `https://ne26igktsj.execute-api.eu-north-1.amazonaws.com/prod/Like?ID=${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ like: state }),
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log("Like state updated successfully");
+      } else {
+        console.error("Failed to update like state");
+      }
+    })
+    .catch((error) => {
+      console.error("Error updating like state:", error);
+    });
+}
 
 var cancelEdit = () => {
   // Clearing the form fields
@@ -327,6 +310,17 @@ function sortRecipes(sortOption) {
     case "date-oldest-first":
       // Assuming you have a 'created' property in your recipe objects
       cachedRecipes.sort((a, b) => new Date(a.created) - new Date(b.created));
+      break;
+    case "like-first":
+      cachedRecipes.sort((a, b) => {
+        if (a.like && !b.like) {
+          return -1;
+        } else if (!a.like && b.like) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
       break;
     default:
     // No sorting or default sorting logic if needed

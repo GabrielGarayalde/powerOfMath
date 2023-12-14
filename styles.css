@@ -165,8 +165,14 @@ textarea:focus {
 .form-group {
   margin-bottom: 1rem;
 }
+
+
 .small-input {
   width: 200px;
+}
+
+.small-input {
+  width: 500px;
 }
 
 .result-item {
@@ -410,7 +416,6 @@ textarea:focus {
   position: relative;
   left: 100px;
   margin-left: -75px;
-  top: 100px;
   margin-bottom: 100px;
   object-fit: cover; /* Crop the image if necessary */
 }
