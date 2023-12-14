@@ -1,6 +1,7 @@
 :root {
-  --headings-color-1: rgb(117, 117, 106);
+  --headings-color-1: rgb(64, 64, 57);
   --headings-color-2: beige;
+
   --accent-color: lightblue;
   --hover-color: rgb(173, 201, 230)  ;
   --background-color: beige;
@@ -10,7 +11,10 @@
   --text-color-dark: #333;
   --text-color-light: #666;
   --navbar-bg-color: rgb(65, 140, 225);
-  --button-bg-color: #4caf50;
+
+  --button-bg-color: var(--accent-color);
+  --button-hover-color: var(--hover-color);
+  --button-text-color: beige
 }
 
 /* Fonts */
@@ -351,7 +355,7 @@ textarea:focus {
   padding: 10px;
   margin-bottom: 10px;
   background-color: var(--accent-color);
-  color: white;
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
 }

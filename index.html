@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+      charset="UTF-8"
+    />
     <title>Cookbook Home</title>
     <link rel="stylesheet" type="text/css" href="styles.css" />
 
@@ -11,7 +15,10 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;1,200;1,300;1,400&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300&display=swap"
       rel="stylesheet"
     />
-    <script src="https://kit.fontawesome.com/78b2bdc1b5.js" crossorigin="anonymous"></script>
+    <script
+      src="https://kit.fontawesome.com/78b2bdc1b5.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <div class="navbar">
@@ -65,28 +72,29 @@
     <!-- Inline script to run specific functions for this page -->
     <script>
       // function to toggle heart icon
-      document.querySelector(".results").addEventListener("click", function (event) {
-        if (event.target.classList.contains("like-button")) {
-          const cardElement = event.target.closest(".card");
-          const recipeId = cardElement.getAttribute("data-id");
-          console.log("liked!");
+      document
+        .querySelector(".results")
+        .addEventListener("click", function (event) {
+          if (event.target.classList.contains("like-button")) {
+            const cardElement = event.target.closest(".card");
+            const recipeId = cardElement.getAttribute("data-id");
+            console.log("liked!");
 
-          if (event.target.classList.contains("fa-regular")) {
-            event.target.classList.remove("fa-regular");
-            event.target.classList.add("fa-solid");
-            callAPIPATCHLike(recipeId, "true"); // Send PATCH request with state as true
-          } else {
-            event.target.classList.remove("fa-solid");
-            event.target.classList.add("fa-regular");
-            callAPIPATCHLike(recipeId, "false"); // Send PATCH request with state as false
+            if (event.target.classList.contains("fa-regular")) {
+              event.target.classList.remove("fa-regular");
+              event.target.classList.add("fa-solid");
+              callAPIPATCHLike(recipeId, "true"); // Send PATCH request with state as true
+            } else {
+              event.target.classList.remove("fa-solid");
+              event.target.classList.add("fa-regular");
+              callAPIPATCHLike(recipeId, "false"); // Send PATCH request with state as false
+            }
+
+            event.stopPropagation();
+            event.preventDefault();
           }
+        });
 
-          event.stopPropagation();
-          event.preventDefault();
-        }
-      });
-
-      
       // function to display the recipes
       document.addEventListener("DOMContentLoaded", function () {
         const cachedRecipes = getRecipesFromCache();
