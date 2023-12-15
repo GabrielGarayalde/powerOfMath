@@ -131,7 +131,9 @@ var displayDynamoDBItems = (data) => {
   resultsElement.innerHTML = "";
   console.log("data: ", data);
   for (const item of data) {
-    displayCardItem(item);
+    if (item.ID !== "secret_recipe") {
+      displayCardItem(item);
+    }
   }
 };
 
