@@ -304,6 +304,10 @@ textarea:focus {
   align-items: center;
 }
 
+.search-icon:hover {
+  background-color: var(--button-hover-color); /* Change this to the color you want */
+}
+
 .search-container {
   background-color: white;
   border-radius: 9999px;
