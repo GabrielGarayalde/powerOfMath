@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+      charset="UTF-8"
+    />
+    <title>Cookbook Home</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;1,200;1,300;1,400&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/78b2bdc1b5.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="navbar-logo">
+        <a href="index.html">
+          <div>
+            <h1 class="headings-light original">T E L O G I U R O ~</h1>
+            <h1 class="headings-light mobile">T L G</h1>
+          </div>
+        </a>
+      </div>
+      <!-- Dropdown Button -->
+      <button
+        id="dropdownButton"
+        class="dropdown-button"
+        onclick="toggleDropdownMenu()"
+      >
+        Menu
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div id="dropdownMenu" class="dropdown-menu">
+        <div class="dropdown-items">
+          <a href="index.html"><button>Cookbook Home</button></a>
+          <a href="create_recipe.html"><button>Create Recipe</button></a>
+          <a href="secret_recipe.html"><button>Ricetta Segreta</button></a>
+        </div>
+      </div>
+
+      <!-- Regular Buttons (Hidden in Mobile View initially) -->
+      <div class="navbar-buttons">
+        <a href="index.html"><button>Cookbook Home</button></a>
+        <a href="create_recipe.html"><button>Create Recipe</button></a>
+        <a href="secret_recipe.html"><button>Ricetta Segreta</button></a>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <h1>COOKBOOK HOME</h1>
+      <div class="form-container">
+        <select onchange="sortRecipes(this.value)">
+          <option value="">Sort Recipes</option>
+          <option value="name-asc">Sort by Name (A-Z)</option>
+          <option value="name-desc">Sort by Name (Z-A)</option>
+          <option value="date-recent-first">Date Created: Recent First</option>
+          <option value="date-oldest-first">Date Created: Oldest First</option>
+          <option value="like-first">Sort by Liked first</option>
+        </select>
+
+        <div class="search-container" id="search-container">
+          <div class="search-icon"><i class="fas fa-search"></i></div>
+          <form id="search-form">
+            <input type="text" id="search-input" placeholder="Search recipes" />
+          </form>
+        </div>
+      </div>
+      <!-- Display retrieved DynamoDB items here -->
+      <div class="results"></div>
+    </div>
+    <script src="scripts.js"></script>
+
+    <!-- Inline script to run specific functions for this page -->
+    <script>
+      document
+        .querySelector(".search-icon")
+        .addEventListener("click", function () {
+          const searchInput = document.getElementById("search-input");
+          const searchContainer = document.getElementById("search-container");
+          if (searchInput.classList.contains("visible")) {
+            searchInput.classList.remove("visible");
+            searchContainer.classList.remove("visible");
+          } else {
+            searchInput.classList.add("visible");
+            searchContainer.classList.add("visible");
+            searchInput.focus();
+          }
+        });
+      // function to toggle heart icon
+      document
+        .querySelector(".results")
+        .addEventListener("click", function (event) {
+          if (event.target.classList.contains("like-button")) {
+            const cardElement = event.target.closest(".card");
+            const recipeId = cardElement.getAttribute("data-id");
+            console.log("liked!");
+
+            if (event.target.classList.contains("fa-regular")) {
+              event.target.classList.remove("fa-regular");
+              event.target.classList.add("fa-solid");
+              callAPIPATCHLike(recipeId, "true"); // Send PATCH request with state as true
+            } else {
+              event.target.classList.remove("fa-solid");
+              event.target.classList.add("fa-regular");
+              callAPIPATCHLike(recipeId, "false"); // Send PATCH request with state as false
+            }
+
+            event.stopPropagation();
+            event.preventDefault();
+          }
+        });
+
+      // function to display the recipes
+      document.addEventListener("DOMContentLoaded", function () {
+        const cachedRecipes = getRecipesFromCache();
+
+        if (cachedRecipes) {
+          // Use cached recipes immediately
+          displayDynamoDBItems(cachedRecipes); // Display cached recipes
+        }
+        callAPIGETRecipes()
+          .then((response) => {
+            displayDynamoDBItems(response);
+          })
+          .catch((error) => {
+            console.error("error", error); // Error handling
+          });
+      });
+
+      document
+        .getElementById("search-input")
+        .addEventListener("input", function (event) {
+          const query = event.target.value.toLowerCase();
+
+          // Get the cached recipes
+          const cachedRecipes = getRecipesFromCache();
+
+          // Filter the cached recipes for a partial match
+          const results = cachedRecipes.filter((recipe) => {
+            const nameMatch = recipe.name.toLowerCase().includes(query);
+            const instructionsMatch = recipe.instructions
+              .toLowerCase()
+              .includes(query);
+            const ingredientsMatch = recipe.ingredients
+              .toLowerCase()
+              .includes(query);
+            const quoteMatch = recipe.quote.toLowerCase().includes(query);
+
+            return (
+              nameMatch || instructionsMatch || ingredientsMatch || quoteMatch
+            );
+          });
+
+          // Display the results
+          displayDynamoDBItems(results);
+        });
+
+      // function to delete a recipe
+      document
+        .querySelector(".results")
+        .addEventListener("click", async function (event) {
+          if (event.target.id === "deleteButton") {
+            const cardElement = event.target.closest(".card");
+            const recipeId = cardElement.getAttribute("data-id");
+            try {
+              await deleteItem(recipeId);
+              alert("Recipe deleted successfully");
+              window.location.href = "index.html";
+            } catch (error) {
+              console.error("Error deleting recipe:", error);
+            }
+          }
+        });
+    </script>
+  </body>
+</html>

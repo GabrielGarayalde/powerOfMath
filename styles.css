@@ -284,6 +284,21 @@ textarea:focus {
   padding: 0 25px;
 }
 
+.opening-content {
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  padding: 0 25px;
+  margin-top: -100px;
+  align-items: center;
+  padding: 20px;
+  text-align: center; /* Center the text */
+}
+
 .main-content {
   margin-top: 100px;
   align-items: center;
@@ -305,7 +320,9 @@ textarea:focus {
 }
 
 .search-icon:hover {
-  background-color: var(--button-hover-color); /* Change this to the color you want */
+  background-color: var(
+    --button-hover-color
+  ); /* Change this to the color you want */
 }
 
 .search-container {
@@ -330,7 +347,8 @@ textarea:focus {
   opacity: 0;
   visibility: hidden;
   max-height: 0;
-  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out, max-height 0.5s ease-in-out;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out,
+    max-height 0.5s ease-in-out;
 }
 
 #search-input.visible {
