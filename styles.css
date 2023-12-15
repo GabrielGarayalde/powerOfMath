@@ -1,20 +1,22 @@
 :root {
-  --headings-color-1: rgb(64, 64, 57);
-  --headings-color-2: beige;
-
-  --accent-color: lightblue;
-  --hover-color: rgb(173, 201, 230)  ;
+  /* text color */
+  --text-color-dark: rgb(64, 64, 57);
+  --text-color-light: beige;
+  /* headings color */
+  --headings-color-1: var(--text-color-dark);
+  --headings-color-2: var(--text-color-light);
+  /* background + color scheme */
   --background-color: beige;
-  --input-focus-color: #547625;
+  --navbar-bg-color: rgb(65, 140, 225);
+  --accent-color: lightblue;
+  --hover-color: rgb(173, 201, 230);
+  /* cards */
   --card-bg-color: white;
   --card-shadow-color: rgba(0, 0, 0, 0.1);
-  --text-color-dark: #333;
-  --text-color-light: #666;
-  --navbar-bg-color: rgb(65, 140, 225);
-
+  /* buttons */
   --button-bg-color: var(--accent-color);
   --button-hover-color: var(--hover-color);
-  --button-text-color: beige
+  --button-text-color: beige;
 }
 
 /* Fonts */
@@ -27,12 +29,21 @@
   src: url("../fonts/belwemonoitalic.otf") format("opentype");
 }
 
-h1, h2, h3, p, body, a, label, button, select, input, textarea {
+h1,
+h2,
+h3,
+p,
+body,
+a,
+label,
+button,
+select,
+input,
+textarea {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 
 h1,
 h2 {
@@ -94,7 +105,7 @@ button {
   border-color: var(--accent-color);
   color: #ffffff;
   font-family: "Poppins", sans-serif;
-  font-weight: 100;
+  font-weight: 300;
   font-style: italic;
   font-size: 20px;
   margin-left: 30px;
@@ -106,13 +117,12 @@ button {
 }
 
 select {
-  border-color: #86c232;
-  /* color: #ffffff; */
+  border-color: var(--hover-color);
   font-family: "Poppins", sans-serif;
   font-weight: 200;
   font-style: italic;
   font-size: 20px;
-  margin-left: 30px;
+  margin-right: 30px;
   border-radius: 10px;
   border: 0;
   padding: 0.5rem 0.5rem;
@@ -125,7 +135,7 @@ button:hover {
 input {
   color: #222629;
   font-family: "Poppins", sans-serif;
-  font-weight: 100;
+  font-weight: 300;
   font-style: italic;
   font-size: 1rem;
   margin-left: 10px;
@@ -142,7 +152,12 @@ input[type="text"] {
 input[type="text"]:focus {
   border-color: #547625;
   outline: 0;
-  box-shadow: 0 0 0 4px rgba(86, 255, 24, 0.25);
+  box-shadow: 0 0 0 4px var(--hover-color);
+}
+
+.search-container #search-input {
+  border: 1px solid white;
+  box-shadow: 0 0 0 0;
 }
 
 input[type="file"] {
@@ -153,7 +168,7 @@ input[type="file"] {
 input[type="file"]:focus {
   border-color: #547625;
   outline: 0;
-  box-shadow: 0 0 0 4px rgba(86, 255, 24, 0.25);
+  box-shadow: 0 0 0 4px var(--hover-color);
 }
 
 textarea {
@@ -168,20 +183,20 @@ textarea:focus {
   border-color: #86c232;
   border: 1px solid;
   outline: 0;
-  box-shadow: 0 0 0 4px rgba(86, 255, 24, 0.25);
+  box-shadow: 0 0 0 4px var(--hover-color);
 }
 
 .form-group {
   margin-bottom: 1rem;
 }
 
-
 .small-input {
   width: 200px;
 }
 
-.small-input {
-  width: 500px;
+.quote-input {
+  width: 100%;
+  max-width: 500px;
 }
 
 .result-item {
@@ -230,7 +245,7 @@ textarea:focus {
 }
 
 .card-actions button {
-  width: 100px;
+  width: 75px;
   flex: 1; /* This will make each button take up equal space */
   margin: 0 5px; /* Example margin, adjust as needed */
   padding: 5px 10px; /* Example padding, adjust as needed */
@@ -242,8 +257,7 @@ textarea:focus {
 
 .image-container {
   width: 100%; /* Adjust width as needed */
-  /* height: 0;
-  padding-top: 100%;  */
+
   position: relative;
   height: 200px;
   overflow: hidden; /* Ensures the image doesn't exceed the container's boundaries */
@@ -267,7 +281,7 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   margin: auto;
-  padding: 0 100px;
+  padding: 0 25px;
 }
 
 .main-content {
@@ -276,10 +290,54 @@ textarea:focus {
   padding: 20px;
 }
 
+.form-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  background-color: white;
+  padding: 15px;
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-container {
+  background-color: white;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  width: 500px;
+}
+
+#search-container {
+  background-color: var(--background-color);
+  transition: background-color 0.5s ease-in-out;
+}
+
+#search-container.visible {
+  background-color: white;
+}
+
+#search-input {
+  width: 400px;
+  opacity: 0;
+  visibility: hidden;
+  max-height: 0;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out, max-height 0.5s ease-in-out;
+}
+
+#search-input.visible {
+  opacity: 1;
+  visibility: visible;
+  max-height: 50px; /* Adjust this value to fit your needs */
+}
+
 @media (min-width: 768px) {
   .main-content {
     margin-top: 0;
-
     max-width: 100%;
     align-items: center;
     padding: 20px;
@@ -290,16 +348,17 @@ textarea:focus {
 .navbar {
   position: fixed;
   width: 100%; /* Full width */
-  height: 75px; /* Adjust height automatically */
+  height: auto; /* Adjust height automatically */
   top: 0; /* Positioned at the top */
   left: 0; /* Aligned to the left */
-  padding: 10px; /* Adjust padding as needed */
+  padding: 15px; /* Adjust padding as needed */
   display: flex; /* Use flexbox for horizontal alignment */
   flex-direction: row; /* Align items in a row */
   justify-content: space-between; /* Distribute space around items */
   align-items: center; /* Align items vertically in the center */
   background-color: var(--navbar-bg-color);
   z-index: 1000; /* High z-index to ensure it's above other elements */
+  box-sizing: border-box; /* Includes padding and border in the width */
 }
 
 /* Styles for Dropdown Menu */
@@ -308,15 +367,10 @@ textarea:focus {
   position: absolute;
   top: 100px;
   right: 0;
-  /* background-color: #f9f9f9; */
   min-width: 160px;
-  /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
   z-index: 1;
-
   transition: all 1s ease;
-
   color: black;
-  /* padding: 12px 16px; */
   text-decoration: none;
 }
 
@@ -331,7 +385,6 @@ textarea:focus {
   background-color: #4caf50; /* Adjust color as needed */
   color: white;
   padding: 10px;
-  margin: 0 10px;
   border: none;
   cursor: pointer;
 }
@@ -351,9 +404,7 @@ textarea:focus {
 }
 .navbar button {
   margin-left: 0;
-  /* width: 100%; */
   padding: 10px;
-  margin-bottom: 10px;
   background-color: var(--accent-color);
   color: var(--button-text-color);
   border: none;
@@ -390,6 +441,7 @@ textarea:focus {
     flex-direction: column; /* Align items in a row */
     justify-content: start; /* Distribute space around items */
     align-items: center;
+    box-sizing: content-box;
   }
   .navbar h1.original {
     display: block;
@@ -404,6 +456,10 @@ textarea:focus {
 
   .navbar-buttons {
     flex-direction: column; /* Align items in a row */
+  }
+
+  .navbar-buttons button {
+    margin: 10px 0;
   }
 }
 
@@ -436,6 +492,12 @@ textarea:focus {
   text-align: right; /* Add this line to align the text to the right */
 }
 
+@media screen and (min-width: 768px) {
+  #instructions {
+    width: 100%;
+  }
+}
+
 .ingredient-row {
   width: 500px;
   display: flex;
@@ -458,6 +520,7 @@ textarea:focus {
 .like-button {
   cursor: pointer;
   font-size: 24px; /* Increase the font size to make the icon bigger */
+  padding-right: 20px;
 }
 
 .fa-solid {
