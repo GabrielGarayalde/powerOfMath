@@ -44,6 +44,7 @@
         <div class="dropdown-items">
           <a href="index.html"><button>Cookbook Home</button></a>
           <a href="create_recipe.html"><button>Create Recipe</button></a>
+          <a href="secret_recipe.html"><button>Ricetta Segreta</button></a>
         </div>
       </div>
 
@@ -51,6 +52,7 @@
       <div class="navbar-buttons">
         <a href="index.html"><button>Cookbook Home</button></a>
         <a href="create_recipe.html"><button>Create Recipe</button></a>
+        <a href="secret_recipe.html"><button>Ricetta Segreta</button></a>
       </div>
     </div>
 
@@ -65,14 +67,13 @@
           <option value="date-oldest-first">Date Created: Oldest First</option>
           <option value="like-first">Sort by Liked first</option>
         </select>
-        
+
         <div class="search-container" id="search-container">
           <div class="search-icon"><i class="fas fa-search"></i></div>
           <form id="search-form">
             <input type="text" id="search-input" placeholder="Search recipes" />
           </form>
         </div>
-
       </div>
       <!-- Display retrieved DynamoDB items here -->
       <div class="results"></div>
