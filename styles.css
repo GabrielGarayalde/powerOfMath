@@ -7,7 +7,7 @@
   --headings-color-2: var(--text-color-light);
   /* background + color scheme */
   --background-color: beige;
-  --navbar-bg-color: rgb(65, 140, 225);
+  --navbar-bg-color: rgb(186, 50, 50);
   --accent-color: lightblue;
   --hover-color: rgb(173, 201, 230);
   /* cards */
@@ -320,9 +320,7 @@ textarea:focus {
 }
 
 .search-icon:hover {
-  background-color: var(
-    --button-hover-color
-  ); /* Change this to the color you want */
+  background-color: var(--button-hover-color);
 }
 
 .search-container {
