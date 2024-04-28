@@ -186,6 +186,24 @@ textarea:focus {
   box-shadow: 0 0 0 4px var(--hover-color);
 }
 
+#add-form input[type="text"],
+#add-form input[type="url"] {
+    padding: 10px; /* Adds some padding inside the input box */
+    box-sizing: border-box; /* Includes padding and border in the width */
+    display: inline-block; /* Displays the elements on the same line */
+    vertical-align: top; /* Aligns elements at the top */
+}
+
+#add-form input[type="text"] {
+    width: 15%; /* Smaller width for the name input */
+}
+
+#add-form input[type="url"] {
+    width: 30%; /* Larger width for the URL input, accounting for padding/margin */
+    margin-left: 2%; /* Optional: Adds space between the two inputs */
+}
+
+
 .form-group {
   margin-bottom: 1rem;
 }

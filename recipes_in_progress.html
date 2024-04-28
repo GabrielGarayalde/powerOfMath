@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+      charset="UTF-8"
+    />
+    <title>Recipes in Progress</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="navbar-logo">
+        <a href="main.html">
+          <div>
+            <h1 class="headings-light original">T E L O G I U R O ~</h1>
+            <h1 class="headings-light mobile">T L G</h1>
+          </div>
+        </a>
+      </div>
+      <!-- Dropdown Button -->
+      <button
+        id="dropdownButton"
+        class="dropdown-button"
+        onclick="toggleDropdownMenu()"
+      >
+        Menu
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div id="dropdownMenu" class="dropdown-menu">
+        <div class="dropdown-items">
+          <a href="main.html"><button>Cookbook Home</button></a>
+          <a href="create_recipe.html"><button>Create Recipe</button></a>
+          <a href="secret_recipe.html"><button>Ricetta Segreta</button></a>
+          <a href="recipes_in_progress.html"><button>Recipes in Progress</button></a>
+        </div>
+      </div>
+
+      <!-- Regular Buttons (Hidden in Mobile View initially) -->
+      <div class="navbar-buttons">
+        <a href="main.html"><button>Cookbook Home</button></a>
+        <a href="create_recipe.html"><button>Create Recipe</button></a>
+        <a href="secret_recipe.html"><button>Ricetta Segreta</button></a>
+        <a href="recipes_in_progress.html"><button>Recipes in Progress</button></a>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <h2>Recipes in Progress</h2>
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Link</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamically populated rows will go here -->
+        </tbody>
+      </table>
+
+      <h3>Add New Entry</h3>
+      <form id="add-form">
+        <input type="text" id="new-name" placeholder="Enter name" required />
+        <input type="url" id="new-link" placeholder="Enter link" required />
+        <button type="submit">Add Entry</button>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchEntries();
+
+        document
+          .getElementById("add-form")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const ID = generateUniqueId(); // Ensure this function generates a unique ID
+            const name = document.getElementById("new-name").value;
+            const link = document.getElementById("new-link").value;
+
+            try {
+              await addEntry(ID, name, link);
+              addRowToTable(ID, name, link); // Update UI without reloading the page
+            } catch (error) {
+              console.error("Error adding entry:", error);
+              alert("Failed to add entry. Please try again.");
+            }
+          });
+      });
+
+      async function fetchEntries() {
+        try {
+          const entries = await callAPIToFetchEntries();
+          console.log("Entries fetched:", entries);
+          const tableBody = document
+            .getElementById("data-table")
+            .getElementsByTagName("tbody")[0];
+          entries.forEach((entry) => {
+            addRowToTable(entry.ID, entry.name, entry.link);
+          });
+        } catch (error) {
+          console.error("Error fetching entries:", error);
+          alert("Failed to fetch entries. Check the console for more details.");
+        }
+      }
+
+      async function addEntry(ID, name, link) {
+        // Assume callAPIPOSTRecipeDB is an async function to add entry to DynamoDB
+        await callAPIPOSTRecipeDB(ID, name, link);
+        console.log("Added", ID, name, link);
+      }
+
+      function addRowToTable(ID, name, link) {
+        const tableBody = document
+          .getElementById("data-table")
+          .getElementsByTagName("tbody")[0];
+        let row = tableBody.insertRow();
+        let nameCell = row.insertCell(0);
+        let linkCell = row.insertCell(1);
+        let actionCell = row.insertCell(2);
+
+        nameCell.textContent = name;
+        linkCell.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+        actionCell.innerHTML = `<button onclick="deleteEntry('${ID}')">Delete</button>`;
+      }
+
+      // Function to call API to delete an entry
+      var callAPIToDeleteEntry = async (ID) => {
+        try {
+          const response = await fetch(
+            `https://0z23n5kl0l.execute-api.eu-north-1.amazonaws.com/prod/Recipe?ID=${ID}`,
+            {
+              method: "DELETE",
+            }
+          );
+
+          console.log(response, "API Response for deletion"); // Detailed log
+
+          if (!response.ok) {
+            throw new Error(`Delete failed with status: ${response.status}`);
+          }
+
+          return response.json(); // Assume API sends some JSON response you might need
+        } catch (error) {
+          console.error("Error deleting entry from API:", error);
+          throw error; // Rethrow to handle it in the calling function
+        }
+      };
+
+      // Function to delete an entry and update the UI
+      async function deleteEntry(ID) {
+        try {
+          await callAPIToDeleteEntry(ID);
+          console.log("Deleted entry:", ID);
+
+          // Find the row in the table and remove it
+          const buttonSelector = `button[onclick="deleteEntry('${ID}')"]`;
+          const rowElement =
+            document.querySelector(buttonSelector).parentNode.parentNode;
+          rowElement.remove(); // Directly remove the row element
+
+          // Optionally, you can refresh the list if needed, or assume it's gone if the API succeeded
+          // const updatedRecipes = await callAPIGETRecipes();
+          // updateRecipeDisplay(updatedRecipes);
+        } catch (error) {
+          console.error("Error during UI delete operation:", error);
+          alert("Failed to delete entry. Please try again.");
+        }
+      }
+    </script>
+    <script src="scripts_recipes_in_progress.js"></script>
+  </body>
+</html>
