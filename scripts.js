@@ -8,7 +8,7 @@ var callAPIPOSTRecipeImage = async (unique_id, file) => {
     const imageUploadResponse = await fetch(
       `https://c9fuffy6cg.execute-api.eu-north-1.amazonaws.com/prod/recipe-bucket-anna?ID=${encodeURIComponent(
         unique_id
-      )}.jpg`,
+      )}`,
       {
         method: "POST",
         body: binaryData,
