@@ -102,7 +102,18 @@ function storeRecipesInCache(recipes) {
 // Function to retrieve recipes from local storage
 function getRecipesFromCache() {
   const storedData = localStorage.getItem("recipes");
-  return (recipes = storedData ? JSON.parse(storedData) : []);
+  try {
+    const parsedData = storedData ? JSON.parse(storedData) : [];
+    if (Array.isArray(parsedData)) {
+      return parsedData;
+    } else {
+      console.error("Cache is not an array. Please clear the cache manually.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Failed to parse cached recipes:", error);
+    return [];
+  }
 }
 
 // Modified callAPIGETRecipes to use caching
