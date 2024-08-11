@@ -109,8 +109,17 @@
 
         document.getElementById("quote").textContent = '"' + item.quote + '"';
 
-        document.getElementById("recipeInstructions").textContent =
-          item.instructions;
+        const instructionsContainer = document.getElementById("recipeInstructions");
+        instructionsContainer.innerHTML = ''; // Clear existing content
+
+        // Split the instructions by newline characters and create a paragraph for each step
+        const instructionsList = item.instructions.split('\n');
+        instructionsList.forEach(instruction => {
+          const p = document.createElement('p');
+          p.textContent = instruction;
+          instructionsContainer.appendChild(p);
+        });
+
 
         document.getElementById("recipeImage1").src =
           "data:image/jpeg;base64," + item.image1;
